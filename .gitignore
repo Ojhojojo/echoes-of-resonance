@@ -427,3 +427,18 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Unity
+unity/Library/
+unity/Temp/
+unity/Logs/
+unity/Builds/
+unity/Obj/
+unity/*.csproj
+unity/*.sln
+unity/UserSettings/
+unity/.vs/
+
+# Server (when added)
+server/bin/
+server/obj/
