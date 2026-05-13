@@ -428,16 +428,35 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
-# Unity
-unity/Library/
-unity/Temp/
-unity/Logs/
-unity/Builds/
-unity/Obj/
-unity/*.csproj
-unity/*.sln
-unity/UserSettings/
-unity/.vs/
+# Unity (standard reliable ignores)
+**/[Ll]ibrary/
+**/[Tt]emp/
+**/[Oo]bj/
+**/[Bb]uild/
+**/[Bb]uilds/
+**/[Ll]ogs/
+**/[Uu]ser[Ss]ettings/
+**/[Mm]emoryCaptures/
+**/[Rr]ecordings/
+**/[Ee]xportedObj/
+*.unitypackage
+*.apk
+*.aab
+*.app
+crashlytics-build.properties
+mono_crash.*
+sysinfo.txt
+
+# Unity project/solution files (generated)
+**/*.csproj
+**/*.sln
+**/*.svd
+**/*.userprefs
+**/*.pidb
+**/*.booproj
+
+# Keep critical Unity asset metadata tracked
+!**/*.meta
 
 # Server (when added)
 server/bin/

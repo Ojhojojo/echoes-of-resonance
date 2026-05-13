@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a03cba647d269e46b974bfa8420f233, type: 3}
+  m_Name: Fluffling
+  m_EditorClassIdentifier: 
+  echoId: fluffling_01
+  displayName: Fluffling
+  baseSprite: {fileID: 21300000, guid: 58183e783b1840caacc39a14fa944adf, type: 3}
+  element: 1
+  rarity: 0
+  primaryAffinity: 0
+  secondaryAffinity: 2
+  baseStats:
+    MaxHp: 38
+    Attack: 12
+    Defense: 8
+    Speed: 16
+    Spirit: 18
+  favoriteFoods:
+  - Spicy Berries
+  - Sun Candy
+  - Firefruit
+  possibleEvolutions:
+  - Path: 10
+    RequiredLevel: 10
+    ResonanceRequirements:
+      MinJoy: 320
+      MinDiscipline: 40
+      MinCourage: 260
+      MinHarmony: 40
+    EvolvedSprite: {fileID: 21300000, guid: 58183e783b1840caacc39a14fa944adf, type: 3}
+    StatBonuses:
+      MaxHp: 8
+      Attack: 1
+      Defense: 0
+      Speed: 4
+      Spirit: 4
+  - Path: 11
+    RequiredLevel: 10
+    ResonanceRequirements:
+      MinJoy: 80
+      MinDiscipline: 60
+      MinCourage: 420
+      MinHarmony: 40
+    EvolvedSprite: {fileID: 21300000, guid: 58183e783b1840caacc39a14fa944adf, type: 3}
+    StatBonuses:
+      MaxHp: 14
+      Attack: 4
+      Defense: 3
+      Speed: 1
+      Spirit: 1
+  - Path: 12
+    RequiredLevel: 10
+    ResonanceRequirements:
+      MinJoy: 280
+      MinDiscipline: 40
+      MinCourage: 60
+      MinHarmony: 300
+    EvolvedSprite: {fileID: 21300000, guid: 58183e783b1840caacc39a14fa944adf, type: 3}
+    StatBonuses:
+      MaxHp: 12
+      Attack: 1
+      Defense: 2
+      Speed: 2
+      Spirit: 4
+  - Path: 13
+    RequiredLevel: 14
+    ResonanceRequirements:
+      MinJoy: 240
+      MinDiscipline: 240
+      MinCourage: 240
+      MinHarmony: 240
+    EvolvedSprite: {fileID: 21300000, guid: 58183e783b1840caacc39a14fa944adf, type: 3}
+    StatBonuses:
+      MaxHp: 10
+      Attack: 3
+      Defense: 3
+      Speed: 3
+      Spirit: 3
