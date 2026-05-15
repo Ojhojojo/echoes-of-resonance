@@ -4,76 +4,37 @@
 **Last updated**: May 11, 2026
 
 ## Root Directory
-echoes-of-resonance/                  ← Repository root
-├── unity/                            ← Unity project (client)
-├── server/                           ← .NET backend (future)
-├── shared/                           ← Shared C# models/DTOs (future)
-├── grok/                             ← Design & planning docs
-├── .gitignore
-├── .gitattributes                    ← (recommended for LFS)
-├── README.md
-├── LICENSE
-└── docker-compose.yml                ← (future)
-text## Detailed Structure
-
-### `unity/` – Unity Client (2D URP recommended)
-unity/
-├── Assets/
-│   ├── Animations/
-│   ├── Audio/
-│   │   ├── Music/
-│   │   └── SFX/
-│   ├── Fonts/
-│   ├── Materials/
+echoes-of-resonance/          ← root
+├── frontend/                 ← Angular + Phaser (the actual game)
+│   ├── src/
+│   │   ├── app/              ← Angular app (components, services, stores)
+│   │   ├── assets/           ← sprites, animations, audio (Phaser-ready)
+│   │   ├── game/             ← Phaser-specific folder (scenes, managers, Echo logic)
+│   │   └── environments/
+│   ├── angular.json
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── capacitor.config.ts   ← added later for mobile
+│
+├── backend/                  ← ASP.NET Core API + EF Core
+│   ├── Controllers/
 │   ├── Models/
-│   ├── Prefabs/
-│   │   ├── Echoes/
-│   │   ├── UI/
-│   │   └── World/
-│   ├── Scenes/
-│   │   ├── MainMenu.unity
-│   │   ├── Ranch.unity
-│   │   └── Minigames/
-│   ├── Scripts/
-│   │   ├── Core/                     ← Data, Save, Managers
-│   │   ├── EchoSystem/               ← Echo, Resonance, Training
-│   │   ├── UI/
-│   │   ├── Minigames/
-│   │   └── Utilities/
-│   ├── Sprites/
-│   │   ├── Echoes/
-│   │   ├── UI/
-│   │   └── Environment/
-│   ├── Resources/                    ← ScriptableObjects, runtime data
-│   └── Editor/                       ← Custom editors & tools
-├── Packages/
-├── ProjectSettings/
-└── ...
-text### `grok/` – Design Documentation
-grok/
-├── Design.md
-├── TODO.md
-├── FileStructure.md                  ← This file
-├── ArtStyle.md                       ← (future)
-├── Balance.md                        ← (future)
-└── ...
-text### Future Folders
-- `server/` → ASP.NET Core Web API (.NET 8+)
-- `shared/` → Shared class library
-- `tools/`  → Build scripts, asset pipelines, etc.
-
-## Key Conventions & Rules
-- **Unity project lives in `unity/`** → keeps the monorepo clean.
-- All design docs stay in `grok/` (never inside Unity Assets).
-- Folder naming: **PascalCase** for most folders.
-- Large binary assets (textures, audio, models) → use Git LFS.
-- Never commit `unity/Library/`, `unity/Temp/`, etc. (handled by .gitignore).
-
-## Next Steps After Creating This File
-1. Create the file in `grok/FileStructure.md`
-2. Commit & push to `develop`
-3. Create the `unity/` folder
-4. Create your Unity project **inside** `unity/`
+│   ├── Services/             ← Resonance calculations, player progress, etc.
+│   ├── Data/                 ← EF Core DbContext + migrations
+│   ├── Program.cs
+│   └── EchoesOfResonance.API.csproj
+│
+├── grok/                     ← keep exactly as-is (design docs only — update contents above)
+│   ├── DESIGN.md
+│   ├── TODO.md
+│   └── ...
+│
+├── .github/                  ← workflows (CI for frontend + backend)
+├── docs/                     ← optional: exported design PDFs or player-facing lore
+├── README.md                 ← update with new setup instructions + tech stack
+├── .gitignore                ← replace Unity ignores with Angular + .NET ignores
+├── .editorconfig
+└── package.json              ← root (optional: for shared scripts or concurrently running front+back)
 
 ---
 

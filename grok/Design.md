@@ -21,39 +21,49 @@ In a world where the boundary between the physical realm and the shattered **Dig
 
 **Tone**: Bright, emotional, Studio Ghibli × Digimon × Monster Rancher. Soundtrack: Chill electronic + acoustic.
 
-### Starter Echoes (Examples)
-- **Fluffling** (Fire/Joy)  
-- **Droplet** (Water/Harmony)  
-- **Sproutling** (Nature/Discipline)  
-- **Spark** (Electric/Courage)
+### Tech Stack (Locked)
+**Frontend / Game**: Angular + Phaser.js  
+- Web-first development. Phaser for all 2D gameplay (ranch, minigames, battles, Echo animations).  
+- Angular for UI, state management, routing, and shell.
+
+**Backend**: ASP.NET Core API + EF Core  
+- Monster data, Resonance calculations, persistence, user accounts.
+
+**Mobile**: Capacitor (iOS + Android)  
+- Thin native wrapper after web version is playable.
+
+**PWA**: Angular PWA for early testing and installable web version.
+
+**Art**: 2D sprites / animations (to be finalized in ART_STYLE_GUIDE.md).
 
 ### Training Systems
-
 #### Active Minigames (High Control, High Reward)
-1. **Echo Dance** – Rhythm game (Joy)
-2. **Rift Exploration** – Light platformer/runner (Courage)
-3. **Harmony Garden** – Match-3 / gardening puzzle (Harmony)
-4. **Discipline Circuit** – Precision obstacle course (Discipline)
-5. **Bond Feast** – Cooking/feeding sim (Joy + Harmony)
+1. **Echo Dance** – Rhythm game (Joy)  
+2. **Rift Exploration** – Light platformer/runner (Courage)  
+3. **Harmony Garden** – Match-3 / gardening puzzle (Harmony)  
+4. **Discipline Circuit** – Precision obstacle course (Discipline)  
+5. **Bond Feast** – Cooking/feeding sim (Joy + Harmony)  
 6. **Echo Spar** – Pattern combat practice (Courage + Discipline, unlocked later)
 
-#### Passive Training - "Echo Drift" (Free Range)
-- Set-and-forget system (30 min – 8+ hours, works offline).
-- Semi-random Resonance gains, biased by current personality and past training.
-- Lower efficiency than active play but still meaningful progress.
-- Small chance of bonus items or memory shards.
-- Light risk of minor Dissonance if neglected too long.
-- Optional focus (e.g., “Emphasize Joy”).
+#### Passive Training - "Echo Drift"
+- Set-and-forget system (30 min – 8+ hours, works offline).  
+- Semi-random Resonance gains, biased by current personality and past training.  
+- Implemented via backend timers + client polling / push notifications.
 
 #### Quick Care
 One-tap daily actions (Pet, Feed, Encourage) for small balanced boosts.
 
 ### Evolution Rules
-- Driven by dominant Resonance axes + total stats.
-- Non-linear branches with visual morphs and personality changes.
-- Passive training produces more “balanced/unpredictable” personalities.
+- Driven by dominant Resonance axes + total stats.  
+- Non-linear branches with visual morphs and personality changes.  
+- Passive training produces more “balanced/unpredictable” personalities.  
 - Active training allows precise shaping of desired evolutions.
 
+### Architecture Notes
+- All game logic (scenes, managers, Resonance engine) lives in `frontend/src/game/`.  
+- Angular services communicate with backend API for persistence and heavy calculations.  
+- Phaser handles rendering, input, and real-time gameplay loops.
+
 ---
-**Last Updated**: May 11, 2026  
-**Status**: Story pillars locked | Minigames & Passive system defined
+**Last Updated**: May 15, 2026  
+**Status**: Story pillars locked | Tech stack locked | Minigames & Passive system defined | Unity abandoned
