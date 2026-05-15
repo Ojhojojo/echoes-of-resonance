@@ -1,0 +1,28 @@
+@if (open()) {
+  <div class="evo-backdrop" role="dialog" aria-modal="true" aria-labelledby="evo-title" (click)="close()">
+    <div class="evo-panel" (click)="$event.stopPropagation()">
+      @if (remoteData(); as data) {
+        <h3 id="evo-title" class="evo-title">Evolution preview — {{ data.displayName }}</h3>
+        <p class="evo-muted">Branches are data-driven; gameplay unlocks arrive later.</p>
+        <ul class="evo-list">
+          @for (b of data.branches; track b.id) {
+            <li class="evo-branch" [class.evo-branch--ready]="branchReady(b)">
+              <div class="evo-branch-head">
+                <strong>{{ b.name }}</strong>
+                @if (branchReady(b)) {
+                  <span class="evo-pill evo-pill--ok">Preview ready</span>
+                } @else {
+                  <span class="evo-pill">{{ branchLockedReason(b) ?? 'Need higher resonance' }}</span>
+                }
+              </div>
+              @if (b.notes) {
+                <p class="evo-notes">{{ b.notes }}</p>
+              }
+            </li>
+          }
+        </ul>
+      }
+      <button type="button" class="evo-close" (click)="close()">Close</button>
+    </div>
+  </div>
+}

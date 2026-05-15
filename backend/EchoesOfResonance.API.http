@@ -1,0 +1,57 @@
+@EchoesOfResonance.API_HostAddress = http://localhost:5261
+@playerId = 00000000-0000-0000-0000-000000000001
+
+### Health
+GET {{EchoesOfResonance.API_HostAddress}}/api/players/{{playerId}}/echo/health
+X-Player-Id: {{playerId}}
+
+### Get or create echo
+GET {{EchoesOfResonance.API_HostAddress}}/api/players/{{playerId}}/echo
+X-Player-Id: {{playerId}}
+
+### Save echo
+PUT {{EchoesOfResonance.API_HostAddress}}/api/players/{{playerId}}/echo
+X-Player-Id: {{playerId}}
+Content-Type: application/json
+
+{
+  "version": 1,
+  "currentEcho": {
+    "echoId": "fluffling_web",
+    "displayName": "Fluffling"
+  },
+  "joy": 42,
+  "discipline": 10,
+  "courage": 15,
+  "harmony": 8,
+  "keeperLevel": 1,
+  "resonanceShards": 3,
+  "petCount": 2,
+  "happiness": 95,
+  "lastInteractionAt": 0,
+  "passivePointsToday": 0,
+  "passiveDayKey": "2026-05-15",
+  "driftFocus": "joy",
+  "lastQuickCareAt": {
+    "pet": 0,
+    "feed": 0,
+    "encourage": 0
+  },
+  "unlockedEchoIds": [ "fluffling_web" ]
+}
+
+### Quick Care (pet)
+POST {{EchoesOfResonance.API_HostAddress}}/api/players/{{playerId}}/echo/actions/quick-care
+X-Player-Id: {{playerId}}
+Content-Type: application/json
+
+{
+  "kind": "pet"
+}
+
+### Drift tick (tab-open passive)
+POST {{EchoesOfResonance.API_HostAddress}}/api/players/{{playerId}}/echo/drift/tick
+X-Player-Id: {{playerId}}
+Content-Type: application/json
+
+{}

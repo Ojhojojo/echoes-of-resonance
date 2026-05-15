@@ -1,0 +1,34 @@
+{
+  "fluffling_web": {
+    "baseId": "fluffling_web",
+    "displayName": "Fluffling",
+    "resonanceBias": {
+      "joy": { "strength": "high", "notes": "Primary; playful and affectionate" },
+      "discipline": { "strength": "low", "notes": "Easy to please" },
+      "courage": { "strength": "medium", "notes": "—" },
+      "harmony": { "strength": "low-medium", "notes": "—" }
+    },
+    "driftWeights": {
+      "joy": 1.25,
+      "discipline": 0.75,
+      "courage": 1.0,
+      "harmony": 0.85
+    }
+  },
+  "starling_web": {
+    "baseId": "starling_web",
+    "displayName": "Starling",
+    "resonanceBias": {
+      "courage": { "strength": "high", "notes": "Bold explorer" },
+      "joy": { "strength": "medium", "notes": "Playful loops" },
+      "harmony": { "strength": "medium", "notes": "Social" },
+      "discipline": { "strength": "low", "notes": "Impulsive" }
+    },
+    "driftWeights": {
+      "courage": 1.35,
+      "joy": 1.0,
+      "harmony": 1.0,
+      "discipline": 0.55
+    }
+  }
+}

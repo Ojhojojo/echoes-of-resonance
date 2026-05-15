@@ -1,0 +1,52 @@
+.quick-care {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+  background: color-mix(in srgb, var(--eor-surface) 92%, transparent);
+  border-top: 1px solid var(--eor-border);
+  backdrop-filter: blur(8px);
+}
+
+.quick-care__btn {
+  flex: 1;
+  max-width: 120px;
+  min-height: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  border-radius: 12px;
+  border: 1px solid var(--eor-border);
+  background: var(--eor-surface-2);
+  color: var(--eor-text);
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.quick-care__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.quick-care__btn:focus-visible {
+  outline: 2px solid var(--eor-focus);
+  outline-offset: 2px;
+}
+
+.quick-care__emoji {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.quick-care__label {
+  font-size: 0.72rem;
+}

@@ -1,0 +1,40 @@
+/* Global design tokens — light / dark via `prefers-color-scheme` (Phase 3). */
+:root {
+  color-scheme: light dark;
+  --eor-bg: linear-gradient(180deg, #e8f4ff 0%, #fff6fb 55%, #f0fff4 100%);
+  --eor-surface: #ffffffcc;
+  --eor-surface-2: #f3f8ff;
+  --eor-border: #c5d6e8;
+  --eor-text: #1a2b3c;
+  --eor-muted: #4a5d6f;
+  --eor-link: #2a6fdb;
+  --eor-focus: #2a6fdb;
+  --eor-accent: #6b8cff;
+  --eor-accent-2: #9b7dff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --eor-bg: linear-gradient(180deg, #0f1624 0%, #1a1528 50%, #102018 100%);
+    --eor-surface: #1a2333e6;
+    --eor-surface-2: #222c3d;
+    --eor-border: #334558;
+    --eor-text: #e8f0ff;
+    --eor-muted: #a7b8cc;
+    --eor-link: #8ab8ff;
+    --eor-focus: #b8d4ff;
+    --eor-accent: #7a9dff;
+    --eor-accent-2: #b49cff;
+  }
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--eor-bg);
+  color: var(--eor-text);
+}

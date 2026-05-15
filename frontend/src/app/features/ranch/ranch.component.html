@@ -1,0 +1,63 @@
+<section class="ranch" aria-labelledby="ranch-heading">
+  <div class="ranch__toolbar">
+    <a routerLink="/" class="ranch__link">← Home</a>
+    <h2 id="ranch-heading" class="ranch__title">Sky Ranch</h2>
+    @if (store.currentEcho(); as echo) {
+      <p class="ranch__echo">
+        Echo: <strong>{{ echo.displayName }}</strong>
+        <span class="ranch__muted">Happiness {{ store.happiness() }}%</span>
+      </p>
+    }
+  </div>
+
+  <app-resonance-bars />
+
+  @if (playingOffline()) {
+    <p class="ranch__notice ranch__notice--warn" role="status">
+      Playing offline — changes will sync when the server is available.
+    </p>
+  }
+
+  @if (store.passiveCapReached()) {
+    <p class="ranch__notice" role="status">Passive resonance is gentle today — cap reached. Active play still helps!</p>
+  }
+
+  <div class="ranch__meta">
+    <span>Keeper Lv. {{ store.keeperLevel() }}</span>
+    <span>Shards {{ store.resonanceShards() }}</span>
+    <span>Pets {{ store.petCount() }}</span>
+  </div>
+
+  <div class="ranch__actions">
+    <button type="button" class="ranch__btn ranch__btn--primary" (click)="launchEchoDance()">
+      Echo Dance
+    </button>
+    <button type="button" class="ranch__btn ranch__btn--ghost" (click)="launchHarmonyGarden()">
+      Harmony Garden
+    </button>
+    <button type="button" class="ranch__btn ranch__btn--ghost" (click)="evolutionOpen.set(true)">
+      Evolution
+    </button>
+    @if (store.unlockedEchoIds().includes('starling_web')) {
+      <div class="ranch__echo-pick" role="group" aria-label="Active echo">
+        <button type="button" class="ranch__btn ranch__btn--ghost" (click)="pickFluffling()">
+          Fluffling
+        </button>
+        <button type="button" class="ranch__btn ranch__btn--ghost" (click)="pickStarling()">
+          Starling
+        </button>
+      </div>
+    }
+    <button type="button" class="ranch__btn ranch__btn--ghost ranch__btn--debug" (click)="store.debugUnlockStarling()">
+      Unlock Starling (debug)
+    </button>
+  </div>
+
+  <div class="ranch__canvas-wrap">
+    <app-phaser-game />
+  </div>
+</section>
+
+<app-evolution-overlay [open]="evolutionOpen()" (closed)="evolutionOpen.set(false)" />
+
+<app-quick-care-bar />

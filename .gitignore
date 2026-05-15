@@ -461,3 +461,9 @@ sysinfo.txt
 # Server (when added)
 server/bin/
 server/obj/
+
+# Echoes API SQLite (Phase 5)
+echoes.db
+echoes.db-*
+backend/echoes.db
+backend/echoes.db-*

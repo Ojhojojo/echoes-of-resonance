@@ -1,0 +1,106 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+  color: var(--eor-text);
+  background: var(--eor-bg);
+}
+
+.app-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding: 0.6rem 1rem;
+  padding-top: calc(0.6rem + env(safe-area-inset-top, 0px));
+  border-bottom: 1px solid var(--eor-border);
+  background: var(--eor-surface);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.app-shell__brand {
+  font-weight: 800;
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  color: var(--eor-text);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.app-shell__brand:focus-visible {
+  outline: 2px solid var(--eor-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.app-shell__nav {
+  display: flex;
+  gap: 0.35rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.app-shell__nav-link {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.35rem 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: var(--eor-link);
+  text-decoration: none;
+  font-weight: 600;
+  touch-action: manipulation;
+}
+
+.app-shell__nav-link:focus-visible {
+  outline: 2px solid var(--eor-focus);
+  outline-offset: 2px;
+}
+
+.app-shell__nav-link.is-active {
+  background: var(--eor-surface-2);
+  color: var(--eor-text);
+}
+
+.app-shell__hud {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  background: var(--eor-surface-2);
+  border: 1px solid var(--eor-border);
+}
+
+.app-shell__hud-label {
+  opacity: 0.75;
+}
+
+.app-shell__hud-value {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.app-shell__main {
+  flex: 1;
+  width: 100%;
+}
+
+.app-shell__footer {
+  padding: 0.75rem 1rem;
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--eor-muted);
+  border-top: 1px solid var(--eor-border);
+  background: var(--eor-surface);
+}

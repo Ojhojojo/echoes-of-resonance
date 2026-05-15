@@ -1,0 +1,19 @@
+<div class="res-bars" [class.res-bars--pulse]="pulse()" role="group" aria-label="Resonance profile">
+  @for (b of bars(); track b.axis) {
+    <div class="res-bars__row">
+      <span class="res-bars__icon" aria-hidden="true">{{ b.icon }}</span>
+      <span class="res-bars__label">{{ b.label }}</span>
+      <div
+        class="res-bars__track"
+        role="progressbar"
+        [attr.aria-valuenow]="b.value"
+        aria-valuemin="0"
+        aria-valuemax="1000"
+        [attr.aria-label]="b.label"
+      >
+        <div class="res-bars__fill res-bars__fill--{{ b.axis }}" [style.width.%]="b.percent"></div>
+      </div>
+      <span class="res-bars__value">{{ b.value }}</span>
+    </div>
+  }
+</div>

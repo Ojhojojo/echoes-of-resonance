@@ -64,6 +64,31 @@ One-tap daily actions (Pet, Feed, Encourage) for small balanced boosts.
 - Angular services communicate with backend API for persistence and heavy calculations.  
 - Phaser handles rendering, input, and real-time gameplay loops.
 
+### Echo Roster (Locked for MVP)
+
+#### 1. Fluffling (Starter)
+- **Type**: Fluffy cloud-like digital critter
+- **Primary Bias**: Joy (high)
+- **Personality**: Playful, affectionate, easy to please
+- **Animations Needed**: Idle (bob), Walk, Happy, Pet Reaction
+- **Unlock**: Default
+
+#### 2. Starling (Second Echo)
+- **Base ID**: `starling_web`
+- **Type**: Sleek aerial bird with glowing circuit feathers
+- **Resonance Bias**:
+  | Axis       | Strength | Notes |
+  |------------|----------|-------|
+  | Courage    | High     | Bold explorer |
+  | Joy        | Medium   | Playful loops |
+  | Harmony    | Medium   | Social |
+  | Discipline | Low      | Impulsive |
+- **Unlock Rule**: Fluffling total Resonance ≥ 120 **AND** complete Echo Dance at least once
+- **Evolution Tease**: High Courage → Stormwing; Balanced → Nebula Finch
+- **Animations Needed**: Hover, Loop, Dive, Idle
+
+**Future Echoes**: To be expanded after vertical slice.
+
 ---
 **Last Updated**: May 15, 2026  
 **Status**: Story pillars locked | Tech stack locked | Minigames & Passive system defined | Unity abandoned

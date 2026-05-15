@@ -1,0 +1,87 @@
+.evo-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 12, 24, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 120;
+  padding: 1rem;
+}
+
+.evo-panel {
+  background: var(--eor-surface);
+  border: 1px solid var(--eor-border);
+  border-radius: 12px;
+  max-width: 420px;
+  width: 100%;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+}
+
+.evo-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+
+.evo-muted {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+  color: var(--eor-muted);
+}
+
+.evo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.evo-branch {
+  padding: 0.55rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--eor-border);
+  margin-bottom: 0.45rem;
+  background: var(--eor-surface-2);
+}
+
+.evo-branch--ready {
+  border-color: color-mix(in srgb, var(--eor-accent) 55%, var(--eor-border));
+}
+
+.evo-branch-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.55rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.evo-pill {
+  font-size: 0.72rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: var(--eor-surface);
+  border: 1px solid var(--eor-border);
+  color: var(--eor-muted);
+}
+
+.evo-pill--ok {
+  color: var(--eor-text);
+  border-color: color-mix(in srgb, var(--eor-accent) 45%, var(--eor-border));
+}
+
+.evo-notes {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: var(--eor-muted);
+}
+
+.evo-close {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 8px;
+  border: 1px solid var(--eor-border);
+  background: var(--eor-surface-2);
+  font-weight: 600;
+  cursor: pointer;
+}

@@ -1,0 +1,25 @@
+{
+  "echoId": "fluffling_web",
+  "displayName": "Fluffling",
+  "branches": [
+    {
+      "id": "flare_form",
+      "name": "Flare Form",
+      "joyRequired": 400,
+      "notes": "Joy-forward evolution — preview only until Phase 6 combat/training hooks land."
+    },
+    {
+      "id": "steady_form",
+      "name": "Steady Form",
+      "disciplineRequired": 400,
+      "notes": "Discipline-forward evolution — emphasizes routines and circuits."
+    },
+    {
+      "id": "ridge_runner",
+      "name": "Ridge Runner",
+      "courageRequired": 380,
+      "harmonyRequired": 120,
+      "notes": "Mixed Courage + Harmony gate — rewards exploration minigames."
+    }
+  ]
+}

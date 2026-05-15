@@ -1,35 +1,52 @@
-# Unity — ** matches unity/EchoesOfResonance/... as well as repo root
-**/[Ll]ibrary/
-**/[Tt]emp/
+﻿# Echoes of Resonance — Cursor index exclusions (Angular + ASP.NET Core)
+# Keep in sync with .gitignore where practical; goal is less noise for AI context.
+
+# --- Angular / Node (frontend) ---
+**/node_modules/
+**/dist/
+**/.angular/
+**/out-tsc/
+**/.sass-cache/
+**/coverage/
+**/__screenshots__/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- .NET / Visual Studio (backend) ---
+**/[Bb]in/
 **/[Oo]bj/
+**/[Dd]ebug/
+**/[Rr]elease/
 **/[Bb]uild/
-**/[Bb]uilds/
+**/[Ll]og/
 **/[Ll]ogs/
-**/[Uu]ser[Ss]ettings/
-**/[Mm]emoryCaptures/
-**/[Rr]ecordings/
-**/[Ee]xportedObj/
-
-# Addressables build output
-**/[Aa]ssets/[Ss]treamingAssets/aa/
-**/[Aa]ssets/[Ss]treamingAssets/aa.meta
-
 .vs/
-
-# Generated / binaries (same as you had)
-#*.csproj
-*.unityproj
-#*.sln
-*.suo
-*.tmp
+**/.vs/
+artifacts/
+.artifacts/
 *.user
+*.suo
+*.userosscache
+*.sln.docstates
 *.userprefs
 *.pidb
-*.booproj
-.vsconfig
-*.apk
-*.aab
-*.unitypackage
-*.app
-*.exe
-crashlytics-build.properties
+*.tmp
+*.log
+*.binlog
+TestResults/
+**/[Tt]est[Rr]esult*/
+BenchmarkDotNet.Artifacts/
+
+# --- Local databases & secrets ---
+*.db
+*.db-*
+*.mdf
+*.ldf
+.env
+.env.*
+
+# --- OS & editor cruft ---
+.DS_Store
+Thumbs.db
+**/.history/

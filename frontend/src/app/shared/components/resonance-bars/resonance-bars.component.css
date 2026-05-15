@@ -1,0 +1,75 @@
+.res-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 0.75rem;
+}
+
+.res-bars--pulse .res-bars__fill {
+  animation: res-pulse 0.45s ease;
+}
+
+@keyframes res-pulse {
+  0% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.25);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+.res-bars__row {
+  display: grid;
+  grid-template-columns: 1.5rem 5.5rem 1fr 2.5rem;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.res-bars__icon {
+  text-align: center;
+}
+
+.res-bars__label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.res-bars__track {
+  height: 10px;
+  border-radius: 6px;
+  background: var(--eor-border);
+  overflow: hidden;
+}
+
+.res-bars__fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.35s ease;
+}
+
+.res-bars__fill--joy {
+  background: linear-gradient(90deg, #ffb347, #ff8a4c);
+}
+
+.res-bars__fill--discipline {
+  background: linear-gradient(90deg, #6b9fff, #4a7fd4);
+}
+
+.res-bars__fill--courage {
+  background: linear-gradient(90deg, #ff6b6b, #e84a4a);
+}
+
+.res-bars__fill--harmony {
+  background: linear-gradient(90deg, #6ee7a0, #3cb878);
+}
+
+.res-bars__value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

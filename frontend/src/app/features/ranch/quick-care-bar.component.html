@@ -1,0 +1,14 @@
+<nav class="quick-care" aria-label="Quick Care">
+  @for (item of kinds; track item.kind) {
+    <button
+      type="button"
+      class="quick-care__btn"
+      [disabled]="disabled(item.kind)"
+      [title]="title(item.kind)"
+      (click)="use(item.kind)"
+    >
+      <span class="quick-care__emoji" aria-hidden="true">{{ item.emoji }}</span>
+      <span class="quick-care__label">{{ item.label }}</span>
+    </button>
+  }
+</nav>
