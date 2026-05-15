@@ -1,0 +1,35 @@
+# Unity — ** matches unity/EchoesOfResonance/... as well as repo root
+**/[Ll]ibrary/
+**/[Tt]emp/
+**/[Oo]bj/
+**/[Bb]uild/
+**/[Bb]uilds/
+**/[Ll]ogs/
+**/[Uu]ser[Ss]ettings/
+**/[Mm]emoryCaptures/
+**/[Rr]ecordings/
+**/[Ee]xportedObj/
+
+# Addressables build output
+**/[Aa]ssets/[Ss]treamingAssets/aa/
+**/[Aa]ssets/[Ss]treamingAssets/aa.meta
+
+.vs/
+
+# Generated / binaries (same as you had)
+#*.csproj
+*.unityproj
+#*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+.vsconfig
+*.apk
+*.aab
+*.unitypackage
+*.app
+*.exe
+crashlytics-build.properties

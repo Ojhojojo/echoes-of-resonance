@@ -5,80 +5,141 @@ using UnityEngine;
 namespace EchoesOfResonance.EchoSystem
 {
     /// <summary>
-    /// Central catalog of <see cref="EchoData"/> ScriptableObjects for fast lookup by <c>echoId</c>.
+    /// Runtime singleton that indexes all <see cref="EchoData"/> for lookup by <c>echoId</c>.
     /// </summary>
     /// <remarks>
-    /// <para><b>How to extend for new monsters</b></para>
+    /// <para><b>Assigning real art later</b></para>
+    /// <para>
+    /// <see cref="EchoData"/> stores a <see cref="UnityEngine.Sprite"/> reference on each asset, not a string path.
+    /// When you import final chibi sprites (see ART_STYLE_GUIDE: 512–1024 PNG, Sprite mode Single), place them under
+    /// e.g. <c>Assets/_Project/Sprites/Echoes/</c>, then open each <c>Fluffling.asset</c> (etc.) in the Inspector and drag
+    /// the sprite onto <b>Base Sprite</b> and each evolution branch’s <b>Evolved Sprite</b>. The current placeholders
+    /// point at tiny PNGs in that folder as stand-ins for paths like <c>Sprites/Echoes/fluffling_base</c>.
+    /// </para>
+    /// <para><b>Usage example — create a PlayerEcho from Fluffling</b></para>
+    /// <code>
+    /// EchoData fluffling = EchoDatabase.Instance.GetEcho("fluffling_01");
+    /// if (fluffling != null)
+    /// {
+    ///     PlayerEcho keeperEcho = PlayerEcho.CreateFromEchoData(fluffling, displayName: "Ember");
+    ///     // keeperEcho.EchoDataId == "fluffling_01"; save keeperEcho when persistence is wired.
+    /// }
+    /// </code>
+    /// <para><b>Extending for new monsters</b></para>
     /// <list type="number">
-    /// <item>Create a new <see cref="EchoData"/> asset (menu: Echoes of Resonance / Echo Data) under
-    /// <c>Assets/_Project/Data/Echoes/</c> (or your chosen content folder).</item>
-    /// <item>Assign a unique <c>echoId</c> (e.g. <c>frostling_01</c>) — this is what <see cref="PlayerEcho.EchoDataId"/> stores.</item>
-    /// <item>Drag the asset into this database's <see cref="echoes"/> list, or merge via Addressables later.</item>
-    /// <item>Call <see cref="RebuildLookup"/> after runtime loads if you mutate the list from code.</item>
+    /// <item>Create <b>Echo Data</b> assets (menu: Echoes of Resonance / Echo Data) with a unique <c>echoId</c>.</item>
+    /// <item>Add them to <see cref="echoCatalog"/> on this component, <i>or</i> place them under
+    /// <c>Assets/.../Resources/{resourcesFolderPath}/</c> so <see cref="Resources.LoadAll"/> picks them up at startup.</item>
+    /// <item>If you add starters later, append their ids to <see cref="StarterEchoIds"/> (or replace with a flag on EchoData).</item>
     /// </list>
-    /// <para>Optional patterns: split databases per chapter; load subsets with Addressables; or replace the list
-    /// with a build pipeline that populates from a spreadsheet — keep <c>echoId</c> as the stable key.</para>
     /// </remarks>
-    [CreateAssetMenu(fileName = "EchoDatabase", menuName = "Echoes of Resonance/Echo Database", order = 1)]
-    public class EchoDatabase : ScriptableObject
+    [DefaultExecutionOrder(-100)]
+    public sealed class EchoDatabase : MonoBehaviour
     {
-        [Tooltip("All EchoData assets known at build time. Starters are pre-linked in EchoDatabase.asset.")]
-        [SerializeField] List<EchoData> echoes = new List<EchoData>();
+        public static EchoDatabase Instance { get; private set; }
+
+        /// <summary>Stable ids for the four launch starters (matches assets in <c>Data/Echoes</c>).</summary>
+        public static readonly string[] StarterEchoIds =
+        {
+            "fluffling_01",
+            "droplet_01",
+            "sproutling_01",
+            "spark_01",
+        };
+
+        [Header("Primary catalog")]
+        [Tooltip("Drag EchoData assets here (e.g. everything under Assets/_Project/Data/Echoes/). Required for assets outside any Resources folder.")]
+        [SerializeField] List<EchoData> echoCatalog = new List<EchoData>();
+
+        [Header("Optional Resources merge")]
+        [Tooltip("If set, Awake merges Resources.LoadAll<EchoData>(this path). Create folder Assets/.../Resources/<path>/ for runtime-loaded extras.")]
+        [SerializeField] string resourcesFolderPath = "EchoData";
+
+        [Tooltip("Turn on to skip Resources.LoadAll (catalog-only mode).")]
+        [SerializeField] bool skipResourcesLoad;
 
         readonly Dictionary<string, EchoData> _byEchoId = new Dictionary<string, EchoData>(StringComparer.Ordinal);
 
-        public IReadOnlyList<EchoData> All => echoes;
-
-        void OnEnable()
+        void Awake()
         {
-            RebuildLookup();
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            RebuildIndex();
+        }
+
+        void OnDestroy()
+        {
+            if (Instance == this)
+                Instance = null;
         }
 
 #if UNITY_EDITOR
         void OnValidate()
         {
-            RebuildLookup();
+            if (Application.isPlaying && Instance == this)
+                RebuildIndex();
         }
 #endif
 
-        /// <summary>Rebuilds the id dictionary after editing the list in the inspector or loading content.</summary>
-        public void RebuildLookup()
+        /// <summary>Rebuilds the lookup (call after mutating <see cref="echoCatalog"/> at runtime, if ever).</summary>
+        public void RebuildIndex()
         {
             _byEchoId.Clear();
-            foreach (EchoData data in echoes)
-            {
-                if (data == null || string.IsNullOrEmpty(data.EchoId))
-                    continue;
-                if (_byEchoId.ContainsKey(data.EchoId))
-                {
-                    Debug.LogWarning($"[EchoDatabase] Duplicate echoId '{data.EchoId}' on {data.name}. Later entry wins.");
-                }
 
-                _byEchoId[data.EchoId] = data;
+            foreach (EchoData data in echoCatalog)
+                Register(data);
+
+            if (!skipResourcesLoad && !string.IsNullOrEmpty(resourcesFolderPath))
+            {
+                EchoData[] fromResources = Resources.LoadAll<EchoData>(resourcesFolderPath);
+                foreach (EchoData data in fromResources)
+                    Register(data);
             }
         }
 
-        public bool TryGetByEchoId(string echoId, out EchoData data)
+        void Register(EchoData data)
         {
-            data = null;
-            if (string.IsNullOrEmpty(echoId))
-                return false;
-            return _byEchoId.TryGetValue(echoId, out data);
+            if (data == null || string.IsNullOrEmpty(data.EchoId))
+                return;
+
+            if (_byEchoId.ContainsKey(data.EchoId))
+                Debug.LogWarning($"[EchoDatabase] Duplicate echoId '{data.EchoId}' — replacing with '{data.name}'.");
+
+            _byEchoId[data.EchoId] = data;
         }
 
-        /// <summary>Returns null when missing — use <see cref="TryGetByEchoId"/> when failure is expected.</summary>
-        public EchoData GetByEchoId(string echoId)
+        /// <summary>Returns the static definition for <paramref name="echoId"/>, or null if unknown.</summary>
+        public EchoData GetEcho(string echoId)
         {
-            TryGetByEchoId(echoId, out EchoData data);
+            if (string.IsNullOrEmpty(echoId))
+                return null;
+            _byEchoId.TryGetValue(echoId, out EchoData data);
             return data;
         }
 
-        public bool TryGetForPlayerEcho(PlayerEcho echo, out EchoData data)
+        /// <summary>All registered EchoData (catalog + Resources merge). Order is not guaranteed.</summary>
+        public List<EchoData> GetAllEchoes()
         {
-            data = null;
-            if (echo == null)
-                return false;
-            return TryGetByEchoId(echo.EchoDataId, out data);
+            return new List<EchoData>(_byEchoId.Values);
+        }
+
+        /// <summary>Launch starters only, in canonical order; skips missing ids.</summary>
+        public List<EchoData> GetAllStarters()
+        {
+            var list = new List<EchoData>(StarterEchoIds.Length);
+            foreach (string id in StarterEchoIds)
+            {
+                if (_byEchoId.TryGetValue(id, out EchoData data))
+                    list.Add(data);
+            }
+
+            return list;
         }
     }
 }
