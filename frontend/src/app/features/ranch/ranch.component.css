@@ -21,6 +21,11 @@
   color: var(--eor-text);
 }
 
+.ranch__notice--success {
+  border-color: color-mix(in srgb, #5cb88a 50%, var(--eor-border));
+  color: var(--eor-text);
+}
+
 .ranch__meta {
   display: flex;
   flex-wrap: wrap;

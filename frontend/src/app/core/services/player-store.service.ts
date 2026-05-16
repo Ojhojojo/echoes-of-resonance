@@ -5,6 +5,13 @@ import {
   isStarterEchoId,
   type StarterEchoId,
 } from '../data/echo-catalog';
+import {
+  createEmptyTrainingPlan,
+  isTrainingPlanComplete,
+  normalizeTrainingPlan,
+  type TrainingActivityId,
+  type TrainingPlan,
+} from '../data/training-plan';
 
 /** Resonance axis keys — aligned with design pillars. */
 export type ResonanceAxis = 'joy' | 'discipline' | 'courage' | 'harmony';
@@ -40,6 +47,10 @@ export interface PlayerSnapshot {
   unlockedEchoIds?: string[];
   echoDanceCompletions?: number;
   peakTotalResonanceAsFluffling?: number;
+  /** In-game week counter (1 = first week after hatch). */
+  gameWeek?: number;
+  /** Mon–Fri training slots (M2). */
+  trainingPlan?: TrainingPlan;
 }
 
 /**
@@ -84,6 +95,11 @@ export class PlayerStore {
   readonly peakTotalResonanceAsFluffling = signal(0);
 
   readonly passiveCapReached = signal(false);
+
+  readonly gameWeek = signal(1);
+  readonly trainingPlan = signal<TrainingPlan>(createEmptyTrainingPlan());
+
+  readonly trainingPlanComplete = computed(() => isTrainingPlanComplete(this.trainingPlan()));
 
   readonly totalResonance = computed(
     () => this.joy() + this.discipline() + this.courage() + this.harmony(),
@@ -132,6 +148,8 @@ export class PlayerStore {
     this.lastQuickCareAt.set({ pet: 0, feed: 0, encourage: 0 });
     this.echoDanceCompletions.set(0);
     this.peakTotalResonanceAsFluffling.set(0);
+    this.gameWeek.set(1);
+    this.trainingPlan.set(createEmptyTrainingPlan());
   }
 
   recordEchoDanceCompletion(): void {
@@ -331,6 +349,28 @@ export class PlayerStore {
     this.keeperLevel.set(Math.max(1, Math.floor(level)));
   }
 
+  setTrainingSlot(dayIndex: number, activity: TrainingActivityId | null): void {
+    if (dayIndex < 0 || dayIndex >= 5) {
+      return;
+    }
+    const plan = [...this.trainingPlan()] as TrainingPlan;
+    plan[dayIndex] = activity;
+    this.trainingPlan.set(plan);
+    this.touchInteraction();
+  }
+
+  /** Advances game week and clears the plan (slot payouts in M3). */
+  endWeek(): boolean {
+    if (!isTrainingPlanComplete(this.trainingPlan())) {
+      return false;
+    }
+
+    this.gameWeek.update((w) => Math.max(1, w) + 1);
+    this.trainingPlan.set(createEmptyTrainingPlan());
+    this.touchInteraction();
+    return true;
+  }
+
   toSnapshot(): PlayerSnapshot {
     return {
       version: 1,
@@ -352,6 +392,8 @@ export class PlayerStore {
       unlockedEchoIds: [...this.unlockedEchoIds()],
       echoDanceCompletions: this.echoDanceCompletions(),
       peakTotalResonanceAsFluffling: this.peakTotalResonanceAsFluffling(),
+      gameWeek: this.gameWeek(),
+      trainingPlan: [...this.trainingPlan()] as TrainingPlan,
     };
   }
 
@@ -404,6 +446,8 @@ export class PlayerStore {
       Math.min(PlayerStore.MaxAxis * 4, peak),
     );
     this.echoDanceCompletions.set(Math.max(0, data.echoDanceCompletions ?? 0));
+    this.gameWeek.set(Math.max(1, data.gameWeek ?? 1));
+    this.trainingPlan.set(normalizeTrainingPlan(data.trainingPlan));
 
     let current = data.currentEcho;
     if (current && !this.unlockedEchoIds().includes(current.echoId)) {

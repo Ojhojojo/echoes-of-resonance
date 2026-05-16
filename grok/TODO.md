@@ -35,8 +35,8 @@ See **[MVP_PLAN.md](MVP_PLAN.md)** for full spec.
 - [x] All four entries in `echo-definitions.json` + BootScene texture loads
 
 ### M2 — Week planner
-- [ ] `trainingPlan` (5 slots) on `PlayerSnapshot`
-- [ ] Planner UI on `/ranch` + **End Week** button
+- [x] `trainingPlan` (5 slots) on `PlayerSnapshot`
+- [x] Planner UI on `/ranch` + **End Week** button
 
 ### M3 — Stats + week resolution
 - [ ] MR stats: power / speed / defense / life

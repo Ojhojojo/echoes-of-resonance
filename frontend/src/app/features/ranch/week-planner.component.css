@@ -1,0 +1,113 @@
+.week-planner {
+  margin-bottom: 0.85rem;
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: 1px solid var(--eor-border);
+  background: var(--eor-surface);
+}
+
+.week-planner__header {
+  margin-bottom: 0.65rem;
+}
+
+.week-planner__title {
+  margin: 0 0 0.25rem;
+  font-size: 1.05rem;
+  color: var(--eor-text);
+}
+
+.week-planner__lead {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--eor-muted);
+  line-height: 1.4;
+}
+
+.week-planner__days {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.week-planner__day {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 8px;
+  background: var(--eor-surface-2);
+  border: 1px solid var(--eor-border);
+}
+
+.week-planner__label {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.week-planner__weekday {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--eor-text);
+}
+
+.week-planner__select {
+  min-height: 40px;
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--eor-border);
+  background: var(--eor-surface);
+  color: var(--eor-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.week-planner__select:focus-visible {
+  outline: 2px solid var(--eor-focus);
+  outline-offset: 2px;
+}
+
+.week-planner__hint {
+  font-size: 0.78rem;
+  color: var(--eor-muted);
+  padding-left: 3rem;
+}
+
+.week-planner__footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.week-planner__end {
+  min-height: 48px;
+  padding: 0.55rem 1rem;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--eor-accent-2), var(--eor-accent));
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.week-planner__end:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.week-planner__end:focus-visible {
+  outline: 2px solid var(--eor-focus);
+  outline-offset: 3px;
+}
+
+.week-planner__note {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--eor-muted);
+}

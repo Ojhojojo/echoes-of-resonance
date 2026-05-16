@@ -8,6 +8,7 @@ import { ResonanceBarsComponent } from '../../shared/components/resonance-bars/r
 import { PhaserGameComponent } from '../../game/phaser-game.component';
 import { EvolutionOverlayComponent } from './evolution-overlay.component';
 import { QuickCareBarComponent } from './quick-care-bar.component';
+import { WeekPlannerComponent } from './week-planner.component';
 
 @Component({
   selector: 'app-ranch',
@@ -18,6 +19,7 @@ import { QuickCareBarComponent } from './quick-care-bar.component';
     ResonanceBarsComponent,
     QuickCareBarComponent,
     EvolutionOverlayComponent,
+    WeekPlannerComponent,
   ],
   templateUrl: './ranch.component.html',
   styleUrl: './ranch.component.css',
@@ -41,6 +43,8 @@ export class RanchComponent implements OnInit, OnDestroy {
       this.store.peakTotalResonanceAsFluffling();
       this.store.unlockedEchoIds();
       this.store.currentEcho();
+      this.store.gameWeek();
+      this.store.trainingPlan();
       this.save.scheduleSave();
     });
 
@@ -55,6 +59,7 @@ export class RanchComponent implements OnInit, OnDestroy {
 
   readonly playingOffline = this.save.playingOffline;
   readonly evolutionOpen = signal(false);
+  readonly weekNotice = signal('');
 
   ngOnInit(): void {
     void this.save.hydrate().then(() => this.drift.start());
@@ -71,5 +76,17 @@ export class RanchComponent implements OnInit, OnDestroy {
 
   launchHarmonyGarden(): void {
     this.bridge.launchMinigame('harmony-garden');
+  }
+
+  onEndWeek(): void {
+    const completedWeek = this.store.gameWeek();
+    if (!this.store.endWeek()) {
+      return;
+    }
+
+    this.weekNotice.set(
+      `Week ${completedWeek} complete! Plan week ${this.store.gameWeek()} — training payouts come next.`,
+    );
+    this.save.scheduleSave();
   }
 }

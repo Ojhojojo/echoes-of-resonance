@@ -23,10 +23,17 @@
   }
 
   <div class="ranch__meta">
+    <span>Week {{ store.gameWeek() }}</span>
     <span>Keeper Lv. {{ store.keeperLevel() }}</span>
     <span>Shards {{ store.resonanceShards() }}</span>
     <span>Pets {{ store.petCount() }}</span>
   </div>
+
+  <app-week-planner (endWeek)="onEndWeek()" />
+
+  @if (weekNotice()) {
+    <p class="ranch__notice ranch__notice--success" role="status">{{ weekNotice() }}</p>
+  }
 
   <div class="ranch__actions">
     <button type="button" class="ranch__btn ranch__btn--primary" (click)="launchEchoDance()">

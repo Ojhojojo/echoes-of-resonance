@@ -1,0 +1,42 @@
+<section class="week-planner" aria-labelledby="week-planner-heading">
+  <header class="week-planner__header">
+    <h3 id="week-planner-heading" class="week-planner__title">Week {{ store.gameWeek() }} plan</h3>
+    <p class="week-planner__lead">Assign Mon–Fri training, then end the week when you are ready.</p>
+  </header>
+
+  <ol class="week-planner__days" role="list">
+    @for (day of weekdays; track day.index) {
+      <li class="week-planner__day">
+        <label class="week-planner__label" [for]="'plan-day-' + day.index">
+          <span class="week-planner__weekday">{{ day.label }}</span>
+          <select
+            class="week-planner__select"
+            [id]="'plan-day-' + day.index"
+            [value]="slotValue(day.index)"
+            (change)="onSlotChange(day.index, $event)"
+          >
+            <option value="">— choose —</option>
+            @for (opt of activities; track opt.id) {
+              <option [value]="opt.id">{{ opt.label }}</option>
+            }
+          </select>
+        </label>
+        <span class="week-planner__hint">{{ slotHint(day.index) }}</span>
+      </li>
+    }
+  </ol>
+
+  <div class="week-planner__footer">
+    <button
+      type="button"
+      class="week-planner__end"
+      [disabled]="!store.trainingPlanComplete()"
+      (click)="requestEndWeek()"
+    >
+      End Week
+    </button>
+    @if (!store.trainingPlanComplete()) {
+      <p class="week-planner__note" role="status">Fill all five weekdays to end the week.</p>
+    }
+  </div>
+</section>

@@ -33,7 +33,7 @@ cd backend && dotnet run --project EchoesOfResonance.API.csproj
 
 ## Grok — design & copy (MVP)
 
-- [ ] **Four egg designs** + short hatch copy per starter (Fluffling, Droplet, Sprout, Spark)
+- [x] **Four egg designs** + short hatch copy per starter (Fluffling, Droplet, Sprout, Spark)
 - [ ] **Week planner** activity list descriptions (Rest, Echo Dance, Harmony Garden, Drift, stubs)
 - [ ] **Adventure** — 1 short scenario template (3–5 nodes, 2–3 choice texts per starter theme)
 - [ ] **Tournament** — opponent name, rank ladder (D→S), win/lose flavor lines
