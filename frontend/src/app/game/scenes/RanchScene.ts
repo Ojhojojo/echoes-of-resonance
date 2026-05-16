@@ -1,11 +1,16 @@
 import Phaser from 'phaser';
-import { FLUFFLING_ECHO_ID, STARLING_ECHO_ID } from '../../core/data/echo-catalog';
+import {
+  echoIdToTextureKey,
+  FLUFFLING_ECHO_ID,
+  getEchoDefinition,
+  starterTextureKeys,
+} from '../../core/data/echo-catalog';
 import type { GameBridgeService } from '../../core/services/game-bridge.service';
 import { Echo } from '../entities/Echo';
 import { GAME_BRIDGE_REGISTRY_KEY, RANCH_ECHO_REGISTRY_KEY } from '../game-config';
 import { SCENE_RANCH } from '../scene-keys';
 import { RanchEchoManager } from '../managers/RanchEchoManager';
-import { createFlufflingTexture, createStarlingTexture } from './texture-utils';
+import { ensureStarterTexture } from './texture-utils';
 
 export class RanchScene extends Phaser.Scene {
   static readonly Key = SCENE_RANCH;
@@ -126,27 +131,30 @@ export class RanchScene extends Phaser.Scene {
   }
 
   private ensureEchoTextures(): void {
-    if (!this.textures.exists('fluffling')) {
-      createFlufflingTexture(this, 'fluffling');
-    }
-    if (!this.textures.exists('starling')) {
-      createStarlingTexture(this, 'starling');
+    for (const key of starterTextureKeys()) {
+      ensureStarterTexture(this, key);
     }
   }
 
   private textureKeyForEchoId(echoId: string): string {
-    return echoId === STARLING_ECHO_ID ? 'starling' : 'fluffling';
+    return echoIdToTextureKey(echoId);
   }
 
   private displayNameForEchoId(echoId: string): string {
-    if (echoId === STARLING_ECHO_ID) {
-      return 'Starling';
-    }
-    return 'Fluffling';
+    return getEchoDefinition(echoId)?.displayName ?? 'Fluffling';
   }
 
   private particleTintForEchoId(echoId: string): number {
-    return echoId === STARLING_ECHO_ID ? 0x7ec8ff : 0xffc870;
+    switch (echoIdToTextureKey(echoId)) {
+      case 'droplet':
+        return 0x70d4ff;
+      case 'sprout':
+        return 0x90e878;
+      case 'spark':
+        return 0xffe866;
+      default:
+        return 0xffc870;
+    }
   }
 
   private ranchSubtitleText(displayName: string): string {

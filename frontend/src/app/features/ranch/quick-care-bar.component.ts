@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, NgZone, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { GameBridgeService } from '../../core/services/game-bridge.service';
 import { EchoSaveService } from '../../core/services/echo-save.service';
 import { EchoApiService } from '../../core/services/echo-api.service';
@@ -32,8 +33,9 @@ export class QuickCareBarComponent {
       return;
     }
 
-    if (this.save.playingOffline()) {
+    if (environment.clientOnly || this.save.playingOffline()) {
       if (this.bridge.notifyQuickCare(kind)) {
+        this.bridge.pulseQuickCareFx(kind);
         this.save.scheduleSave();
       }
       return;

@@ -1,179 +1,115 @@
 # Echoes of Resonance - Project Tracker
 
-
-
-## Locked / Decided
-
+## ✅ Locked / Decided
 - Story pillars (5 core pillars)
-
 - Overall game concept and tone
-
 - Training systems (Active minigames + Echo Drift passive + Quick Care)
-
-- Evolution driven by Resonance axes (Joy, Discipline, Courage, Harmony)
-
-- Tech Stack: Angular + Phaser.js (frontend/game) + ASP.NET Core + EF Core (backend) + Capacitor (mobile)
-
-- Art direction: 2D sprites/animations
-
+- Evolution driven by Resonance axes — **fully automatic** (Digimon-style)
+- Tech Stack: Angular + Phaser.js (frontend/game) + ASP.NET Core + EF Core (backend, **parked for MVP**) + Capacitor (mobile)
+- Art direction: 2D sprites/animations (minimal + Grok Imagine approach)
 - Web-first → PWA → Mobile
+- **MVP pillars:** Week planner + Adventures + Tournaments (~15 min/day, End Week button)
+- **Onboarding:** Egg selection → hatch one of **4 starters** (Fluffling, Droplet, Sprout, Spark)
+- **MVP persistence:** `localStorage` only (`environment.clientOnly`) — polish gameplay first
+- Full design: [MVP_PLAN.md](MVP_PLAN.md)
 
-- Starter Echo: **Fluffling** (Joy-biased)
+## 🎉 Accomplished Summary (foundation)
+- Full Angular + Phaser foundation with responsive bridge and Signals state
+- RanchScene with roaming Echo, pet/follow, particles, day/night
+- Resonance UI + Quick Care bar
+- EchoDriftService, Harmony Garden, Echo Dance (base), Evolution preview overlay
+- Backend Phase 5 + 5C complete (frozen for MVP playtests)
+- Four starter base sprites on disk; Fluffling wired in client
 
+## 📋 Current focus — MVP gameplay loop (client-only)
 
+See **[MVP_PLAN.md](MVP_PLAN.md)** for full spec.
 
-## Completed
+### M0 — Client-only mode
+- [x] `environment.clientOnly` + `EchoSaveService` local-only path (`eor_snapshot_v2`)
+- [x] Dev note in README: MVP = no `dotnet run` required
 
-- Angular + Phaser monorepo setup
+### M1 — Egg → hatch → starter
+- [x] `/egg` route: pick 1 of 4 eggs
+- [x] Hatch flow sets `currentEcho` + starter texture
+- [x] All four entries in `echo-definitions.json` + BootScene texture loads
 
-- PhaserGameComponent bridge + responsive container + SSR-safe lazy Phaser chunk
+### M2 — Week planner
+- [ ] `trainingPlan` (5 slots) on `PlayerSnapshot`
+- [ ] Planner UI on `/ranch` + **End Week** button
 
-- BootScene + RanchScene with interaction
+### M3 — Stats + week resolution
+- [ ] MR stats: power / speed / defense / life
+- [ ] `WeekResolverService` applies slot payouts
 
-- GameBridgeService + PlayerStore (Signals)
+### M4 — Adventures (non-negotiable)
+- [ ] `AdventureScene` — lite weekend expedition (3–5 nodes)
 
-- Phases 1–3 foundation (shell, routing, loading overlay, theme tokens)
+### M5 — Tournaments (non-negotiable)
+- [ ] `TournamentScene` — **light timing** combat (not full auto)
 
-- **Phase 4 — Fluffling & Resonance MVP (web)**
+### M6 — Evolution v1
+- [ ] Automatic Stage 1 from resonance profile + week gate
+- [ ] Sprite swap + evolution overlay copy
 
-  - `game/entities/Echo.ts` + `RanchEchoManager`
+### M7 — Care meters
+- [ ] Fatigue + happiness integration; dissonance visuals
 
-  - PlayerStore extensions (happiness, passive cap, Quick Care cooldowns, snapshots)
+### M8 — Polish
+- [ ] Starter idle/walk or sheet; mobile QA on planner + combat
 
-  - `EchoSaveService` (localStorage `eor_fluffling_v1` — superseded by API in Phase 5)
+## Later phases (post-MVP)
 
-  - `EchoDriftService` (45s tab-open ticks; **5C:** server tick when online)
+### Phase 7 – Multi-Echo & Ranch Expansion
+- [ ] Ranch customization, memory shards
+- [ ] Breeding / egg tease (beyond starter pick)
 
-  - Resonance bars UI + floating Quick Care bar
+### Phase 8 – Mobile & Polish
+- [ ] PWA, Capacitor, tutorial flow
 
-  - Ranch polish: parallax, day/night tint, particles, wander/follow/pet
+### Phase 9 – Backend return
+- [ ] Re-enable API sync when loop is fun
+- [ ] Auth, leaderboards, server-validated minigames
 
-  - **Echo Dance** minigame (rhythm judgments + combo; Phase 6 depth ongoing)
-
-- **Phase 5 — Backend + API integration**
-
-  - ASP.NET Core controllers, EF Core SQLite (`echoes.db`), repository + services
-
-  - `GET/PUT api/players/{id}/echo` with `X-Player-Id`; server-side offline drift on GET
-
-  - Angular `EchoApiService`, `PlayerIdentityService`, API-first `EchoSaveService` + offline queue
-
-- **Phase 5C — Server authority (implemented)**
-
-  - `POST api/players/{id}/echo/actions/quick-care` — 4h cooldown, mirrors web gains
-
-  - `POST api/players/{id}/echo/drift/tick` — tab-open passive tick (does not bump offline drift anchor)
-
-  - Angular: Quick Care API-first; drift tick API-first when API reachable
-
-
-
-### Phase 6 (in progress — code slices landed)
-
-- [x] **Harmony Garden** prototype scene (`HarmonyGardenScene`) + ranch launcher + Harmony-biased payout (`applyHarmonyGardenRound`)
-
-- [x] **Evolution preview** overlay + `/assets/evolution/fluffling-preview.json`
-
-- [x] **`unlockedEchoIds`** on snapshot + SQLite column (`UnlockedEchoIdsJson`) migration `20260516120000_AddUnlockedEchoIdsJson`
-
-- [ ] Second Echo gameplay unlock rules + switching current Echo UX
-
-- [ ] Art/audio pass (sprites, SFX, music — see [MANUAL_TODOS.md](MANUAL_TODOS.md))
-
-
-
-## Phase 4 — Resolved decisions
-
+## Resolved Decisions (MVP)
 | Topic | Decision |
-
 |-------|----------|
+| Persistence | **localStorage only** for MVP |
+| Session | ~15 min/day, **End Week** advances time |
+| Combat | **Light timing** in tournament |
+| Evolution | **Automatic** — no player branch pick |
+| Starters | **4** via egg hatch |
+| Non-negotiable | Week planner, adventures, tournaments |
 
-| Fluffling art | Procedural texture + optional `assets/game/fluffling_base.png` swap-in |
+## Manual Validation Checklist (`/ranch`)
+(See [MANUAL_TODOS.md](MANUAL_TODOS.md))
+1. Egg → hatch → correct starter on ranch
+2. Week plan persists; End Week updates stats/resonance
+3. Adventure completes with rewards
+4. Tournament uses timing input; win/lose affects state
+5. Evolution fires automatically; sprite updates
+6. Refresh keeps progress (localStorage)
+7. Mobile viewport clean
 
-| Minigame (Phase 4) | Echo Dance playable slice → deepening in Phase 6 |
-
-| Resonance UI | Horizontal bars with icons + numeric values |
-
-| Persistence | **API + localStorage fallback** + offline queue (`eor_offline_queue`) |
-
-| Backend | SQLite dev DB (`echoes.db`); SQL Server deferred |
-
-
-
-## Phase 5 — Backend integration
-
-- [x] **5A** Controllers + EF Core SQLite + repository + `PlayerEcho` GET/PUT
-
-- [x] **5B** Angular `EchoApiService` + `PlayerIdentityService` + API-first `EchoSaveService`
-
-- [x] **5C** Server Quick Care + drift tick endpoints + Angular wiring
-
-
-
-### Human checklist split
-
-See **[MANUAL_TODOS.md](MANUAL_TODOS.md)** for **manual run/verify commands** (API + Angular URLs), assets, `dotnet ef`, and QA (Swagger `429`, etc.). Phase work does **not** require starting dev servers automatically—you run those commands when you want to check the app.
-
-### Dev workflow (you run when verifying)
+## Dev Workflow (MVP — frontend only)
 
 ```bash
-# Terminal 1 — API → http://localhost:5261  |  Swagger → http://localhost:5261/swagger
-cd backend
-dotnet run --project EchoesOfResonance.API.csproj
-
-# Terminal 2 — Angular → http://localhost:4200/ranch
-cd frontend
-npm start
+cd frontend && npm start
+# App: http://localhost:4200
+# Egg: /egg  ·  Ranch: /ranch
 ```
 
-**Compile-only (no running servers):**
+Compile:
 
 ```bash
-cd backend && dotnet build EchoesOfResonance.API.csproj
 cd frontend && npm run build
 ```
 
-On **`/ranch`**, the client uses stable **`eor_player_id`** (localStorage) and sends **`X-Player-Id`** to the API; when the API is up, **`GET …/echo`** applies server-side offline drift.
+Backend (optional, not required for MVP QA):
 
+```bash
+cd backend && dotnet run --project EchoesOfResonance.API.csproj
+```
 
-
-## Backlog — Phase 6+ (remaining polish)
-
-- Deeper Echo Dance (music sync, chart authoring)
-
-- Additional pillar minigames (Rift, Discipline Circuit, Bond Feast)
-
-- Real Fluffling sprite sheet / Spine animations
-
-- PWA + Capacitor packaging
-
-
-
-## Manual validation checklist (`/ranch`)
-
-1. Fluffling roams; tap to pet → Joy bar increases
-
-2. Double-tap quickly → brief follow behavior
-
-3. Quick Care with API up → persists after refresh; spam → HTTP **429** + synced cooldown
-
-4. Wait ~45s tab visible + API up → drift tick via POST (`appliedPassivePoints`); offline banner skips tab ticks
-
-5. Refresh → state restored from API (or legacy localStorage if API down)
-
-6. Stop API → play → restart API → offline queue flushes; banner clears
-
-7. Echo Dance / Harmony Garden → complete → ranch resonance updates → PUT saves
-
-8. Evolution overlay loads branches JSON (fallback stub if fetch blocked)
-
-9. Mobile viewport (~390px): overlay + canvas usable, no console errors
-
-
-
----
-
-**Last Updated**: May 16, 2026  
-
-**Status**: Phase 5 + 5C complete (web); Phase 6 prototype slices in repo — follow `MANUAL_TODOS.md` for asset/audio QA
-
+Last Updated: May 16, 2026  
+Status: **MVP gameplay loop** — client-only, MR3 pillars locked → see MVP_PLAN.md

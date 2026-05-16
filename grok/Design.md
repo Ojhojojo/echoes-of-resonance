@@ -66,29 +66,18 @@ One-tap daily actions (Pet, Feed, Encourage) for small balanced boosts.
 
 ### Echo Roster (Locked for MVP)
 
-#### 1. Fluffling (Starter)
+#### 1. Fluffling (Starter — playable in MVP)
+- **Base ID**: `fluffling_web`
 - **Type**: Fluffy cloud-like digital critter
 - **Primary Bias**: Joy (high)
 - **Personality**: Playful, affectionate, easy to please
 - **Animations Needed**: Idle (bob), Walk, Happy, Pet Reaction
 - **Unlock**: Default
 
-#### 2. Starling (Second Echo)
-- **Base ID**: `starling_web`
-- **Type**: Sleek aerial bird with glowing circuit feathers
-- **Resonance Bias**:
-  | Axis       | Strength | Notes |
-  |------------|----------|-------|
-  | Courage    | High     | Bold explorer |
-  | Joy        | Medium   | Playful loops |
-  | Harmony    | Medium   | Social |
-  | Discipline | Low      | Impulsive |
-- **Unlock Rule**: Fluffling total Resonance ≥ 120 **AND** complete Echo Dance at least once
-- **Evolution Tease**: High Courage → Stormwing; Balanced → Nebula Finch
-- **Animations Needed**: Hover, Loop, Dive, Idle
-
-**Future Echoes**: To be expanded after vertical slice.
+**Future Echoes (starter roster — see `STARTER_MONSTERS.md`)**: **Droplet**, **Sprout**, and **Spark** have base sprite art and design notes; wire them into the client and catalog when multi-echo play is scheduled. No second playable Echo is locked for MVP beyond this four-starter vision.
 
 ---
-**Last Updated**: May 15, 2026  
-**Status**: Story pillars locked | Tech stack locked | Minigames & Passive system defined | Unity abandoned
+**MVP (May 2026):** Week planner + adventures + tournaments; egg hatch (4 starters); client-only saves. See [MVP_PLAN.md](MVP_PLAN.md).
+
+**Last Updated**: May 16, 2026  
+**Status**: Story pillars locked | Tech stack locked | MVP gameplay loop locked | Unity abandoned

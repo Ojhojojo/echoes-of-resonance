@@ -1,6 +1,7 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Injectable, NgZone, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { GameBridgeService } from './game-bridge.service';
 import { EchoSaveService } from './echo-save.service';
 import { EchoApiService } from './echo-api.service';
@@ -60,7 +61,27 @@ export class EchoDriftService implements OnDestroy {
       return;
     }
 
-    if (this.pending || this.save.playingOffline()) {
+    if (this.pending) {
+      return;
+    }
+
+    if (environment.clientOnly) {
+      this.pending = true;
+      try {
+        this.zone.run(() => {
+          const applied = this.store.applyTabOpenDriftTick();
+          if (applied > 0) {
+            this.bridge.notifyDriftTick();
+          }
+        });
+        this.save.scheduleSave();
+      } finally {
+        this.pending = false;
+      }
+      return;
+    }
+
+    if (this.save.playingOffline()) {
       return;
     }
 

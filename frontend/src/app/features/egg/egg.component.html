@@ -1,0 +1,58 @@
+<section class="egg" aria-labelledby="egg-heading">
+  <header class="egg__header">
+    <a routerLink="/" class="egg__link">← Home</a>
+    <h1 id="egg-heading" class="egg__title">Choose Your Resonance Egg</h1>
+    <p class="egg__lead">Each egg hums with a different spirit. Pick the partner who calls to you.</p>
+  </header>
+
+  @if (!hatching()) {
+    <ul class="egg__grid" role="list">
+      @for (egg of eggs; track egg.echoId) {
+        <li>
+          <button
+            type="button"
+            class="egg__card"
+            [class.egg__card--selected]="selected()?.echoId === egg.echoId"
+            (click)="selectEgg(egg)"
+            [attr.aria-pressed]="selected()?.echoId === egg.echoId"
+          >
+            <img
+              class="egg__img"
+              [src]="egg.eggImageUrl"
+              [alt]="egg.displayName + ' resonance egg'"
+              width="160"
+              height="200"
+              loading="lazy"
+            />
+            <span class="egg__name">{{ egg.displayName }}</span>
+          </button>
+        </li>
+      }
+    </ul>
+
+    <div class="egg__actions">
+      <button
+        type="button"
+        class="egg__hatch"
+        [disabled]="!selected()"
+        (click)="hatch()"
+      >
+        Hatch egg
+      </button>
+    </div>
+  } @else {
+    <div class="egg__hatch-stage" role="status" aria-live="polite">
+      @if (selected(); as egg) {
+        <img
+          class="egg__hatch-img"
+          [src]="egg.eggImageUrl"
+          [alt]="egg.displayName + ' hatching'"
+          width="200"
+          height="250"
+        />
+        <p class="egg__hatch-copy">{{ hatchLine() }}</p>
+        <p class="egg__hatch-name">Meet {{ egg.displayName }}!</p>
+      }
+    </div>
+  }
+</section>

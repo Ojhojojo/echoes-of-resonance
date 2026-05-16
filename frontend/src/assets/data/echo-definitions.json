@@ -15,20 +15,52 @@
       "harmony": 0.85
     }
   },
-  "starling_web": {
-    "baseId": "starling_web",
-    "displayName": "Starling",
+  "droplet_web": {
+    "baseId": "droplet_web",
+    "displayName": "Droplet",
     "resonanceBias": {
-      "courage": { "strength": "high", "notes": "Bold explorer" },
-      "joy": { "strength": "medium", "notes": "Playful loops" },
-      "harmony": { "strength": "medium", "notes": "Social" },
-      "discipline": { "strength": "low", "notes": "Impulsive" }
+      "harmony": { "strength": "high", "notes": "Primary; gentle and empathetic" },
+      "joy": { "strength": "medium", "notes": "Secondary; shy warmth" },
+      "discipline": { "strength": "low-medium", "notes": "—" },
+      "courage": { "strength": "low", "notes": "—" }
     },
     "driftWeights": {
-      "courage": 1.35,
       "joy": 1.0,
-      "harmony": 1.0,
-      "discipline": 0.55
+      "discipline": 0.85,
+      "courage": 0.75,
+      "harmony": 1.25
+    }
+  },
+  "sprout_web": {
+    "baseId": "sprout_web",
+    "displayName": "Sprout",
+    "resonanceBias": {
+      "discipline": { "strength": "high", "notes": "Primary; calm and studious" },
+      "harmony": { "strength": "medium", "notes": "Secondary; patient growth" },
+      "joy": { "strength": "low-medium", "notes": "—" },
+      "courage": { "strength": "medium", "notes": "—" }
+    },
+    "driftWeights": {
+      "joy": 0.9,
+      "discipline": 1.25,
+      "courage": 1.0,
+      "harmony": 1.1
+    }
+  },
+  "spark_web": {
+    "baseId": "spark_web",
+    "displayName": "Spark",
+    "resonanceBias": {
+      "courage": { "strength": "high", "notes": "Primary; bold and curious" },
+      "discipline": { "strength": "medium", "notes": "Secondary; competitive focus" },
+      "joy": { "strength": "medium", "notes": "—" },
+      "harmony": { "strength": "low", "notes": "—" }
+    },
+    "driftWeights": {
+      "joy": 1.05,
+      "discipline": 1.15,
+      "courage": 1.25,
+      "harmony": 0.8
     }
   }
 }

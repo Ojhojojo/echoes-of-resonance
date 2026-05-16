@@ -1,9 +1,9 @@
 import { Injectable, computed, signal } from '@angular/core';
 import {
   FLUFFLING_ECHO_ID,
-  STARLING_ECHO_ID,
-  STARLING_UNLOCK_FUFFLING_TOTAL_RESONANCE,
   getEchoDefinition,
+  isStarterEchoId,
+  type StarterEchoId,
 } from '../data/echo-catalog';
 
 /** Resonance axis keys — aligned with design pillars. */
@@ -20,6 +20,8 @@ export interface CurrentEcho {
 
 export interface PlayerSnapshot {
   version: 1;
+  /** False until the player completes egg onboarding (M1). */
+  hasHatched?: boolean;
   currentEcho: CurrentEcho | null;
   joy: number;
   discipline: number;
@@ -49,10 +51,9 @@ export class PlayerStore {
   static readonly PassiveDailyCap = 250;
   static readonly QuickCareCooldownMs = 4 * 60 * 60 * 1000;
 
-  readonly currentEcho = signal<CurrentEcho | null>({
-    echoId: FLUFFLING_ECHO_ID,
-    displayName: 'Fluffling',
-  });
+  readonly hasHatched = signal(false);
+
+  readonly currentEcho = signal<CurrentEcho | null>(null);
 
   readonly joy = signal(0);
   readonly discipline = signal(0);
@@ -76,10 +77,10 @@ export class PlayerStore {
   });
 
   /** Echo ids this keeper has unlocked (server persists via snapshot). */
-  readonly unlockedEchoIds = signal<string[]>([FLUFFLING_ECHO_ID]);
+  readonly unlockedEchoIds = signal<string[]>([]);
 
   readonly echoDanceCompletions = signal(0);
-  /** Max sum of four axes observed while Fluffling was the active Echo (unlock gate). */
+  /** Max sum of four axes observed while Fluffling was the active Echo (reserved for future progression). */
   readonly peakTotalResonanceAsFluffling = signal(0);
 
   readonly passiveCapReached = signal(false);
@@ -96,11 +97,41 @@ export class PlayerStore {
     this.progressionPulse();
   }
 
-  /** Dev-only: grant Starling unlock for layout / sprite checks without grinding. */
-  debugUnlockStarling(): void {
-    this.unlockedEchoIds.update((ids) =>
-      ids.includes(STARLING_ECHO_ID) ? ids : [...ids, STARLING_ECHO_ID],
-    );
+  /** Egg onboarding — sets partner, unlocks starter, resets keeper progress. */
+  hatchStarter(echoId: StarterEchoId): boolean {
+    if (!isStarterEchoId(echoId)) {
+      return false;
+    }
+    const def = getEchoDefinition(echoId);
+    if (!def) {
+      return false;
+    }
+
+    this.hasHatched.set(true);
+    this.unlockedEchoIds.set([echoId]);
+    this.currentEcho.set({ echoId, displayName: def.displayName });
+    this.resetKeeperProgress();
+    this.touchInteraction();
+    this.progressionPulse();
+    return true;
+  }
+
+  private resetKeeperProgress(): void {
+    this.joy.set(0);
+    this.discipline.set(0);
+    this.courage.set(0);
+    this.harmony.set(0);
+    this.keeperLevel.set(1);
+    this.resonanceShards.set(0);
+    this.petCount.set(0);
+    this.happiness.set(100);
+    this.passivePointsToday.set(0);
+    this.passiveDayKey.set(this.todayKey());
+    this.passiveCapReached.set(false);
+    this.driftFocus.set('joy');
+    this.lastQuickCareAt.set({ pet: 0, feed: 0, encourage: 0 });
+    this.echoDanceCompletions.set(0);
+    this.peakTotalResonanceAsFluffling.set(0);
   }
 
   recordEchoDanceCompletion(): void {
@@ -254,6 +285,21 @@ export class PlayerStore {
     return applied;
   }
 
+  /** Tab-open periodic drift — mirrors backend ApplyTabOpenDriftTick. */
+  applyTabOpenDriftTick(): number {
+    this.ensurePassiveDay();
+    if (this.passivePointsToday() >= PlayerStore.PassiveDailyCap) {
+      return 0;
+    }
+
+    const baseGain = 3 + Math.floor(Math.random() * 4);
+    const joy = Math.round(baseGain * 0.5);
+    const harmony = Math.round(baseGain * 0.2);
+    const courage = Math.round(baseGain * 0.15);
+    const discipline = baseGain - joy - harmony - courage;
+    return this.applyPassiveGain(joy, discipline, courage, harmony);
+  }
+
   applyOfflineDriftHours(hours: number): number {
     if (hours <= 0) {
       return 0;
@@ -288,6 +334,7 @@ export class PlayerStore {
   toSnapshot(): PlayerSnapshot {
     return {
       version: 1,
+      hasHatched: this.hasHatched(),
       currentEcho: this.currentEcho(),
       joy: this.joy(),
       discipline: this.discipline(),
@@ -313,6 +360,9 @@ export class PlayerStore {
       return;
     }
 
+    const hatched = data.hasHatched ?? !!data.currentEcho;
+    this.hasHatched.set(hatched);
+
     this.joy.set(this.clampAxis(data.joy));
     this.discipline.set(this.clampAxis(data.discipline));
     this.courage.set(this.clampAxis(data.courage));
@@ -330,12 +380,16 @@ export class PlayerStore {
       feed: data.lastQuickCareAt?.feed ?? 0,
       encourage: data.lastQuickCareAt?.encourage ?? 0,
     });
-    const ids = data.unlockedEchoIds?.filter(Boolean);
-    const unlocked = ids?.length ? [...ids] : [FLUFFLING_ECHO_ID];
-    if (!unlocked.some((id) => id === FLUFFLING_ECHO_ID)) {
-      unlocked.unshift(FLUFFLING_ECHO_ID);
+    const ids = data.unlockedEchoIds?.filter(Boolean) ?? [];
+    if (hatched) {
+      const unlocked = ids.length ? [...ids] : [FLUFFLING_ECHO_ID];
+      if (!unlocked.some((id) => id === FLUFFLING_ECHO_ID)) {
+        unlocked.unshift(FLUFFLING_ECHO_ID);
+      }
+      this.unlockedEchoIds.set(unlocked);
+    } else {
+      this.unlockedEchoIds.set([...ids]);
     }
-    this.unlockedEchoIds.set(unlocked);
 
     const total =
       this.clampAxis(data.joy) +
@@ -385,7 +439,6 @@ export class PlayerStore {
 
   private progressionPulse(): void {
     this.refreshFlufflingPeak();
-    this.tryUnlockStarling();
   }
 
   private refreshFlufflingPeak(): void {
@@ -396,20 +449,5 @@ export class PlayerStore {
     const cap = PlayerStore.MaxAxis * 4;
     const clamped = Math.min(cap, total);
     this.peakTotalResonanceAsFluffling.update((p) => Math.max(p, clamped));
-  }
-
-  private tryUnlockStarling(): void {
-    if (this.unlockedEchoIds().includes(STARLING_ECHO_ID)) {
-      return;
-    }
-    if (this.peakTotalResonanceAsFluffling() < STARLING_UNLOCK_FUFFLING_TOTAL_RESONANCE) {
-      return;
-    }
-    if (this.echoDanceCompletions() < 1) {
-      return;
-    }
-    this.unlockedEchoIds.update((ids) =>
-      ids.includes(STARLING_ECHO_ID) ? ids : [...ids, STARLING_ECHO_ID],
-    );
   }
 }

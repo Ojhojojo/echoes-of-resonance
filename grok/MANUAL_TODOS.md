@@ -1,25 +1,12 @@
 # Manual checklist (humans / Grok)
 
-**Workflow:** Phase work in this repo does **not** assume anyone starts or stops the API / Angular dev servers for you. **You** choose when to run the commands below to verify behavior. (Automation should prefer `dotnet build` / `npm run build` over keeping long-lived processes.)
+**MVP mode:** Gameplay polish uses **`localStorage` only** — you do **not** need the API for MVP QA. See [MVP_PLAN.md](MVP_PLAN.md).
 
-Use this list while implementation lands in code. Check items off as you complete them.
+**Workflow:** You choose when to run dev servers. Automation should prefer `npm run build` over long-lived processes.
 
-## Run & verify the application (when *you* want to test)
+## Run & verify the application (MVP — frontend only)
 
-Open **two terminals** from the repo root (or `backend` / `frontend` as shown).
-
-**Terminal 1 — ASP.NET API**
-
-```bash
-cd backend
-dotnet run --project EchoesOfResonance.API.csproj
-```
-
-- Base URL: **http://localhost:5261**
-- Swagger (Development): **http://localhost:5261/swagger**
-- Health probe (example): `GET http://localhost:5261/api/players/{your-guid}/echo/health` with header `X-Player-Id: {same-guid}`
-
-**Terminal 2 — Angular**
+**Terminal — Angular**
 
 ```bash
 cd frontend
@@ -27,21 +14,45 @@ npm start
 ```
 
 - App: **http://localhost:4200**
-- Ranch / game shell: **http://localhost:4200/ranch**
+- Egg flow: **http://localhost:4200/egg** (once implemented)
+- Ranch: **http://localhost:4200/ranch**
 
-**Optional — compile-only checks (no servers)**
+**Optional — compile-only**
 
 ```bash
-cd backend && dotnet build EchoesOfResonance.API.csproj
 cd frontend && npm run build
 ```
 
-## Assets and attribution (optional polish)
+**Backend (parked — only when testing old API features)**
 
-- [ ] Choose **free/CC0** packs if replacing procedural art (e.g. Kenney.nl, OpenGameArt CC0); download into `frontend/src/assets/…`
-- [ ] Add **`CREDITS.md`** at repo root (or extend `README.md`) with license names + links for every file you add
-- [ ] Optional: **Fluffling** swap-in PNG at `frontend/src/assets/game/fluffling_base.png` (already supported by texture pipeline if present)
-- [ ] Optional: rhythm **SFX / music** loops for Echo Dance / ranch (Freesound — verify license per clip)
+```bash
+cd backend && dotnet run --project EchoesOfResonance.API.csproj
+```
+
+- Base URL: **http://localhost:5261** · Swagger: **http://localhost:5261/swagger**
+
+## Grok — design & copy (MVP)
+
+- [ ] **Four egg designs** + short hatch copy per starter (Fluffling, Droplet, Sprout, Spark)
+- [ ] **Week planner** activity list descriptions (Rest, Echo Dance, Harmony Garden, Drift, stubs)
+- [ ] **Adventure** — 1 short scenario template (3–5 nodes, 2–3 choice texts per starter theme)
+- [ ] **Tournament** — opponent name, rank ladder (D→S), win/lose flavor lines
+- [ ] **Evolution Stage 1** — branch flavor text for automatic evolutions (Joy / Courage / Harmony / balanced rare)
+- [ ] Finish **Droplet, Sprout, Spark** in `STARTER_MONSTERS.md` + evolution path bullets
+
+## Grok — art (MVP)
+
+- [ ] **4 egg sprites** (selection screen)
+- [ ] Confirm all **4 base sprites** under `frontend/src/assets/game/sprites/` (paths in `STARTER_MONSTERS.md`)
+- [ ] **Stage 1** art for Fluffling (min 2 branches); placeholders OK for other starters initially
+- [ ] Ranch **sky-island background** (static PNG)
+- [ ] Tournament / adventure **UI frames** or icons if needed
+
+## Assets and attribution
+
+- [ ] Choose **free/CC0** packs if replacing procedural art; download into `frontend/src/assets/…`
+- [ ] Add **`CREDITS.md`** at repo root with license + links per file
+- [ ] Rhythm **SFX / music** for Echo Dance, tournament timing hits, evolution sting (Freesound — verify license)
 
 ## Tools and environment
 
@@ -50,20 +61,21 @@ cd frontend && npm run build
 - [ ] After pulling new migrations: `cd backend` → `dotnet ef database update --project EchoesOfResonance.API.csproj`
 - [ ] SQLite file `backend/echoes.db` is gitignored — backup locally if you care about dev saves
 
-## QA (manual)
+## QA (manual) — MVP loop
 
-- [ ] Phase **5C**: Swagger — `POST …/quick-care` returns **429** when spamming same kind before 4h
-- [ ] Phase **5C**: With API up, Quick Care updates bars + **persists** after refresh (no client-only cheat)
-- [ ] Phase **5C**: Tab-open drift uses **POST …/drift/tick** when online; no double gains vs offline banner behavior
-- [ ] Phase **6**: Echo Dance — early/late/combo feedback feels fair over 3 runs
-- [ ] Phase **6**: Harmony Garden launches, completes, grants Harmony, saves
-- [ ] Phase **6**: Evolution preview shows branches; `unlockedEchoIds` survives GET/PUT (after migration applied)
-- [ ] Mobile `/ranch` — Quick Care + minigame buttons remain usable (~390px width)
+- [ ] **Egg → hatch:** pick each starter once; correct sprite on ranch
+- [ ] **Week planner:** assign Mon–Fri; **End Week** updates resonance + MR stats
+- [ ] **Adventure:** complete weekend run; rewards persist after refresh
+- [ ] **Tournament:** timing windows feel fair; outcome changes rank or rewards
+- [ ] **Evolution:** triggers **automatically** (no branch picker); sprite updates
+- [ ] **localStorage:** clear test — progress survives refresh; `clientOnly` needs no API
+- [ ] Echo Dance / Harmony Garden still launch from planned slots
+- [ ] Mobile ~390px: planner, Quick Care, timing combat usable
 
-## Design / product (not blocking code)
+## Parked (post-MVP)
 
-- [ ] Define **second Echo** id + unlock rule when moving beyond placeholder (`starling_web` stub in data JSON)
-- [ ] Decide when Echo Dance scores should be **server-validated** (later hardening)
+- [ ] API Quick Care **429**, drift tick, GET/PUT snapshot (Phase 5C regression)
+- [ ] Server-validated minigame scores
 
 ---
 

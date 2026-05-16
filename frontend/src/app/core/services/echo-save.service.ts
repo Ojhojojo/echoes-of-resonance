@@ -1,15 +1,17 @@
 import { Injectable, inject, PLATFORM_ID, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { EchoApiService } from './echo-api.service';
 import { PlayerIdentityService } from './player-identity.service';
 import { PlayerSnapshot, PlayerStore } from './player-store.service';
 
+const SNAPSHOT_KEY = 'eor_snapshot_v2';
 const LEGACY_STORAGE_KEY = 'eor_fluffling_v1';
 const OFFLINE_QUEUE_KEY = 'eor_offline_queue';
 
 /**
- * API-first persistence with localStorage fallback and offline queue (Phase 5).
+ * Persistence: local-only when `environment.clientOnly`, otherwise API-first with fallback.
  */
 @Injectable({ providedIn: 'root' })
 export class EchoSaveService {
@@ -22,8 +24,9 @@ export class EchoSaveService {
   private playerId = '';
   private flushInFlight = false;
   private visibilityHandler: (() => void) | null = null;
+  private hydratePromise: Promise<void> | null = null;
 
-  /** True when last hydrate/save could not reach the API. */
+  /** True when API hydrate/save failed and local fallback is active (not set in client-only mode). */
   readonly playingOffline = signal(false);
 
   async hydrate(): Promise<void> {
@@ -31,18 +34,36 @@ export class EchoSaveService {
       return;
     }
 
+    if (!this.hydratePromise) {
+      this.hydratePromise = this.runHydrate();
+    }
+    return this.hydratePromise;
+  }
+
+  private async runHydrate(): Promise<void> {
     this.playerId = this.identity.getOrCreatePlayerId();
+
+    if (environment.clientOnly) {
+      this.loadLocalSnapshot();
+      if (this.store.hasHatched()) {
+        this.applyCatchUpDrift();
+      }
+      this.playingOffline.set(false);
+      this.scheduleSave();
+      return;
+    }
+
     this.bindVisibilityFlush();
 
     try {
       const snapshot = await firstValueFrom(this.api.getEcho(this.playerId));
       this.store.loadSnapshot(snapshot);
-      this.cacheLegacy(snapshot);
+      this.persistLocal(snapshot);
       this.playingOffline.set(false);
       await this.flushOfflineQueue();
     } catch (e) {
       console.warn('[EchoSave] API hydrate failed, using local fallback', e);
-      this.loadLegacyLocal();
+      this.loadLocalSnapshot();
       this.playingOffline.set(true);
     }
 
@@ -69,7 +90,13 @@ export class EchoSaveService {
     }
 
     const snapshot = this.store.toSnapshot();
-    this.cacheLegacy(snapshot);
+
+    if (environment.clientOnly) {
+      this.persistLocal(snapshot);
+      return;
+    }
+
+    this.persistLocal(snapshot);
 
     try {
       await firstValueFrom(this.api.saveEcho(this.playerId, snapshot));
@@ -83,7 +110,12 @@ export class EchoSaveService {
   }
 
   async flushOfflineQueue(): Promise<void> {
-    if (!isPlatformBrowser(this.platformId) || this.flushInFlight || !this.playerId) {
+    if (
+      environment.clientOnly ||
+      !isPlatformBrowser(this.platformId) ||
+      this.flushInFlight ||
+      !this.playerId
+    ) {
       return;
     }
 
@@ -127,21 +159,38 @@ export class EchoSaveService {
     document.addEventListener('visibilitychange', this.visibilityHandler);
   }
 
-  private loadLegacyLocal(): void {
+  private loadLocalSnapshot(): void {
     try {
-      const raw = localStorage.getItem(LEGACY_STORAGE_KEY);
-      if (raw) {
-        const data = JSON.parse(raw) as PlayerSnapshot;
-        this.store.loadSnapshot(data);
+      const raw =
+        localStorage.getItem(SNAPSHOT_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
+      if (!raw) {
+        return;
+      }
+
+      const data = JSON.parse(raw) as PlayerSnapshot;
+      this.store.loadSnapshot(data);
+
+      if (!localStorage.getItem(SNAPSHOT_KEY)) {
+        this.persistLocal(this.store.toSnapshot());
       }
     } catch (e) {
-      console.warn('[EchoSave] Failed to load legacy save', e);
+      console.warn('[EchoSave] Failed to load local save', e);
     }
   }
 
-  private cacheLegacy(snapshot: PlayerSnapshot): void {
+  private applyCatchUpDrift(): void {
+    const hoursAway = (Date.now() - this.store.lastInteractionAt()) / (1000 * 60 * 60);
+    if (hoursAway < 0.25) {
+      return;
+    }
+
+    this.store.applyOfflineDriftHours(hoursAway);
+    this.store.touchInteraction();
+  }
+
+  private persistLocal(snapshot: PlayerSnapshot): void {
     try {
-      localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(snapshot));
+      localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(snapshot));
     } catch {
       /* ignore quota errors */
     }

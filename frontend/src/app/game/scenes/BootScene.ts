@@ -1,6 +1,10 @@
 import Phaser from 'phaser';
+import {
+  baseSpritePathForTextureKey,
+  starterTextureKeys,
+} from '../../core/data/echo-catalog';
 import { RanchScene } from './RanchScene';
-import { createFlufflingTexture, createStarlingTexture } from './texture-utils';
+import { ensureStarterTexture } from './texture-utils';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -8,28 +12,27 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
-    this.load.on('loaderror', () => {
-      if (!this.textures.exists('fluffling')) {
-        createFlufflingTexture(this, 'fluffling');
-      }
-      if (!this.textures.exists('starling')) {
-        createStarlingTexture(this, 'starling');
+    this.load.on('loaderror', (_file: Phaser.Loader.File) => {
+      const key = _file.key;
+      if (typeof key === 'string') {
+        ensureStarterTexture(this, key);
       }
     });
-    if (!this.textures.exists('fluffling')) {
-      this.load.image('fluffling', 'assets/game/fluffling_base.png');
-    }
-    if (!this.textures.exists('starling')) {
-      this.load.image('starling', 'assets/game/starling_base.png');
+
+    for (const key of starterTextureKeys()) {
+      if (this.textures.exists(key)) {
+        continue;
+      }
+      const path = baseSpritePathForTextureKey(key);
+      if (path) {
+        this.load.image(key, path);
+      }
     }
   }
 
   create(): void {
-    if (!this.textures.exists('fluffling')) {
-      createFlufflingTexture(this, 'fluffling');
-    }
-    if (!this.textures.exists('starling')) {
-      createStarlingTexture(this, 'starling');
+    for (const key of starterTextureKeys()) {
+      ensureStarterTexture(this, key);
     }
     this.scene.start(RanchScene.Key);
   }

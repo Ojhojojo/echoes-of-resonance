@@ -12,7 +12,7 @@ import {
   SCENE_RANCH,
 } from '../../game/scene-keys';
 import { RANCH_ECHO_REGISTRY_KEY } from '../../game/game-config';
-import { FLUFFLING_ECHO_ID, STARLING_ECHO_ID } from '../data/echo-catalog';
+import { FLUFFLING_ECHO_ID, getEchoDefinition } from '../data/echo-catalog';
 
 export type MinigameTier = 'poor' | 'good' | 'excellent' | 'perfect';
 
@@ -60,7 +60,7 @@ export class GameBridgeService {
     }
     const id = echo?.echoId ?? FLUFFLING_ECHO_ID;
     const displayName =
-      echo?.displayName ?? (id === STARLING_ECHO_ID ? 'Starling' : 'Fluffling');
+      echo?.displayName ?? getEchoDefinition(id)?.displayName ?? 'Fluffling';
     this.phaserGame.registry.set(RANCH_ECHO_REGISTRY_KEY, id);
     this.emitGame('bridge-ranch-echo', { echoId: id, displayName });
   }

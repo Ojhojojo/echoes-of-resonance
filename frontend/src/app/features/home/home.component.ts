@@ -10,7 +10,7 @@ import { RouterLink } from '@angular/router';
     <section class="home">
       <h1 class="home__title">Echoes of Resonance</h1>
       <p class="home__lead">Raise your Echo on the sky ranch — peaceful, cute, touch-friendly.</p>
-      <a routerLink="/ranch" class="home__cta">Enter the Ranch</a>
+      <a routerLink="/egg" class="home__cta">Choose your egg</a>
     </section>
   `,
   styles: `

@@ -35,7 +35,7 @@ public class PlayerEcho
     /// <summary>Times Echo Dance finished successfully (session complete).</summary>
     public int EchoDanceCompletions { get; set; }
 
-    /// <summary>Peak sum of four resonance axes while the active echo was Fluffling (Starling unlock).</summary>
+    /// <summary>Peak sum of four resonance axes while the active echo was Fluffling (reserved for future progression).</summary>
     public int PeakTotalResonanceAsFluffling { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }

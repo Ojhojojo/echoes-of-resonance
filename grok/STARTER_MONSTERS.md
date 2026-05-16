@@ -1,5 +1,18 @@
 # Starter Monsters - Echoes of Resonance
 
+## Base sprite assets
+
+Repo paths (Phaser loads from `assets/game/…` under `frontend/src/assets/`):
+
+| Starter   | File                | Path |
+|-----------|---------------------|------|
+| Fluffling | `fluffling_base.jpg` | `frontend/src/assets/game/sprites/fluffling_base.jpg` |
+| Droplet   | `droplet_base.png`   | `frontend/src/assets/game/sprites/droplet_base.png` |
+| Sprout    | `sprout_base.png`    | `frontend/src/assets/game/sprites/sprout_base.png` |
+| Spark     | `spark_base.png`     | `frontend/src/assets/game/sprites/spark_base.png` |
+
+**MVP:** Only **Fluffling** is wired in the game client so far. The other three have design write-ups and base art on disk; hook them up the same way when the starter roster expands.
+
 ## 1. Fluffling
 **Base Form Name**: Fluffling  
 **Element / Theme**: Fire / Playful Cloud  
@@ -62,8 +75,8 @@
 
 *(Fill in the rest using the template)*
 
-## 3. Sproutling
-**Base Form Name**: Sproutling  
+## 3. Sprout
+**Base Form Name**: Sprout 
 **Element / Theme**: Nature / Leafy  
 **Resonance Affinity**: Discipline (Primary) → Harmony (Secondary)
 
@@ -99,4 +112,4 @@
 Would you like me to fully expand all four monsters right now using the template?  
 Or pick one (e.g. Fluffling) and flesh it out completely first, then move to the others?
 
-Let me know how you want to proceed! 🐾
+Let me know how you want to proceed.

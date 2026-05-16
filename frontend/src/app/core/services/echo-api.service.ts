@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, map, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { FLUFFLING_ECHO_ID, getEchoDefinition } from '../data/echo-catalog';
 import { PlayerSnapshot } from './player-store.service';
 
 export interface DriftTickResponse {
@@ -72,23 +73,23 @@ export class EchoApiService {
   }
 
   private normalizeSnapshot(dto: PlayerSnapshot): PlayerSnapshot {
-    const ids = [...(dto.unlockedEchoIds ?? [])];
-    if (!ids.some((id) => id?.toLowerCase() === 'fluffling_web')) {
-      ids.unshift('fluffling_web');
+    const hatched = dto.hasHatched ?? !!dto.currentEcho;
+    const rawIds = [...(dto.unlockedEchoIds ?? [])];
+    const ids = rawIds.filter((id): id is string => !!id && !!getEchoDefinition(id));
+    if (hatched && !ids.some((id) => id.toLowerCase() === FLUFFLING_ECHO_ID)) {
+      ids.unshift(FLUFFLING_ECHO_ID);
     }
 
-    let currentEcho = dto.currentEcho ?? { echoId: 'fluffling_web', displayName: 'Fluffling' };
-    if (
-      currentEcho.echoId?.toLowerCase() === 'starling_web' &&
-      !ids.some((id) => id?.toLowerCase() === 'starling_web')
-    ) {
-      currentEcho = { echoId: 'fluffling_web', displayName: 'Fluffling' };
+    let currentEcho = dto.currentEcho;
+    if (currentEcho && !getEchoDefinition(currentEcho.echoId)) {
+      currentEcho = { echoId: FLUFFLING_ECHO_ID, displayName: 'Fluffling' };
     }
 
     return {
       ...dto,
       version: 1,
-      currentEcho,
+      hasHatched: hatched,
+      currentEcho: currentEcho ?? null,
       lastQuickCareAt: {
         pet: dto.lastQuickCareAt?.pet ?? 0,
         feed: dto.lastQuickCareAt?.feed ?? 0,

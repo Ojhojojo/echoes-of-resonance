@@ -38,19 +38,6 @@
     <button type="button" class="ranch__btn ranch__btn--ghost" (click)="evolutionOpen.set(true)">
       Evolution
     </button>
-    @if (store.unlockedEchoIds().includes('starling_web')) {
-      <div class="ranch__echo-pick" role="group" aria-label="Active echo">
-        <button type="button" class="ranch__btn ranch__btn--ghost" (click)="pickFluffling()">
-          Fluffling
-        </button>
-        <button type="button" class="ranch__btn ranch__btn--ghost" (click)="pickStarling()">
-          Starling
-        </button>
-      </div>
-    }
-    <button type="button" class="ranch__btn ranch__btn--ghost ranch__btn--debug" (click)="store.debugUnlockStarling()">
-      Unlock Starling (debug)
-    </button>
   </div>
 
   <div class="ranch__canvas-wrap">

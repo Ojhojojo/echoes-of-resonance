@@ -1,6 +1,5 @@
 import { Component, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { FLUFFLING_ECHO_ID, STARLING_ECHO_ID } from '../../core/data/echo-catalog';
 import { GameBridgeService } from '../../core/services/game-bridge.service';
 import { EchoDriftService } from '../../core/services/echo-drift.service';
 import { EchoSaveService } from '../../core/services/echo-save.service';
@@ -72,13 +71,5 @@ export class RanchComponent implements OnInit, OnDestroy {
 
   launchHarmonyGarden(): void {
     this.bridge.launchMinigame('harmony-garden');
-  }
-
-  pickFluffling(): void {
-    this.store.setCurrentEcho({ echoId: FLUFFLING_ECHO_ID, displayName: 'Fluffling' });
-  }
-
-  pickStarling(): void {
-    this.store.setCurrentEcho({ echoId: STARLING_ECHO_ID, displayName: 'Starling' });
   }
 }
