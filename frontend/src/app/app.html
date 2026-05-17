@@ -1,23 +1,27 @@
-<div class="app-shell">
-  <header class="app-shell__header">
-    <a routerLink="/" class="app-shell__brand">{{ title() }}</a>
-    <nav class="app-shell__nav" aria-label="Main">
-      <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" class="app-shell__nav-link"
-        >Home</a
-      >
-      <a routerLink="/ranch" routerLinkActive="is-active" class="app-shell__nav-link">Ranch</a>
-    </nav>
-    <div class="app-shell__hud" aria-live="polite">
-      <span class="app-shell__hud-label">Shards</span>
-      <span class="app-shell__hud-value">{{ store.resonanceShards() }}</span>
-    </div>
-  </header>
+<div class="app-shell" [class.app-shell--immersive]="immersiveLayout()">
+  @if (!immersiveLayout()) {
+    <header class="app-shell__header">
+      <a routerLink="/" class="app-shell__brand">{{ title() }}</a>
+      <nav class="app-shell__nav" aria-label="Main">
+        <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" class="app-shell__nav-link"
+          >Home</a
+        >
+        <a routerLink="/ranch" routerLinkActive="is-active" class="app-shell__nav-link">Ranch</a>
+      </nav>
+      <div class="app-shell__hud" aria-live="polite">
+        <span class="app-shell__hud-label">Shards</span>
+        <span class="app-shell__hud-value">{{ store.resonanceShards() }}</span>
+      </div>
+    </header>
+  }
 
-  <main class="app-shell__main">
+  <main class="app-shell__main" [class.app-shell__main--immersive]="immersiveLayout()">
     <router-outlet />
   </main>
 
-  <footer class="app-shell__footer">
-    <p>Echoes of Resonance — Angular + Phaser foundation (Phase 2–3).</p>
-  </footer>
+  @if (!immersiveLayout()) {
+    <footer class="app-shell__footer">
+      <p>Echoes of Resonance — Angular + Phaser</p>
+    </footer>
+  }
 </div>

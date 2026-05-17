@@ -1,3 +1,11 @@
+:host.quick-care-host--immersive {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+}
+
 .quick-care {
   position: fixed;
   left: 0;
@@ -12,6 +20,13 @@
   background: color-mix(in srgb, var(--eor-surface) 92%, transparent);
   border-top: 1px solid var(--eor-border);
   backdrop-filter: blur(8px);
+}
+
+:host.quick-care-host--immersive .quick-care {
+  position: relative;
+  background: var(--eor-hud-bg);
+  backdrop-filter: var(--eor-hud-blur);
+  border-top: 1px solid var(--eor-border);
 }
 
 .quick-care__btn {

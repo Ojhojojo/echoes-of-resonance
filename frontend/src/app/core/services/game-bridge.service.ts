@@ -4,12 +4,16 @@ import {
   PlayerStore,
   type CurrentEcho,
   type QuickCareKind,
-  type ResonanceAxis,
 } from './player-store.service';
+import type { CareState } from '../data/care-meters';
+import type { TournamentRank } from '../data/tournament-data';
+import type { ResonanceAxis } from './player-store.service';
 import {
+  SCENE_ADVENTURE,
   SCENE_ECHO_DANCE,
   SCENE_HARMONY_GARDEN,
   SCENE_RANCH,
+  SCENE_TOURNAMENT,
 } from '../../game/scene-keys';
 import { RANCH_ECHO_REGISTRY_KEY } from '../../game/game-config';
 import { FLUFFLING_ECHO_ID, getEchoDefinition } from '../data/echo-catalog';
@@ -20,6 +24,24 @@ export interface MinigameResult {
   gameId: string;
   score: number;
   tier: MinigameTier;
+}
+
+export interface AdventureResult {
+  adventureId: string;
+  endingId: string;
+  dominantAxis: ResonanceAxis;
+  axisScores: Record<ResonanceAxis, number>;
+}
+
+export interface TournamentResult {
+  won: boolean;
+  grade: 'S' | 'A' | 'B' | 'C' | 'D';
+  score: number;
+  perfects: number;
+  goods: number;
+  misses: number;
+  opponent: string;
+  rank: TournamentRank;
 }
 
 export type BridgeEvent =
@@ -116,6 +138,19 @@ export class GameBridgeService {
     this.zone.run(() => this.playerStore.addCurrency(amount));
   }
 
+  getTournamentRank(): TournamentRank {
+    return this.playerStore.tournamentRank();
+  }
+
+  getCareState(): CareState {
+    return this.playerStore.careState();
+  }
+
+  syncCareState(state?: CareState): void {
+    const care = state ?? this.playerStore.careState();
+    this.phaserGame?.events.emit('bridge-care-state', care);
+  }
+
   launchMinigame(gameId: string): void {
     if (!this.phaserGame) {
       return;
@@ -123,14 +158,30 @@ export class GameBridgeService {
     this.zone.run(() => {
       this.activeMinigame.set(gameId);
       if (gameId === 'echo-dance') {
-        const ranch = this.phaserGame!.scene.getScene(SCENE_RANCH) as Scene | null;
-        ranch?.scene.pause();
-        ranch?.scene.launch(SCENE_ECHO_DANCE);
+        this.pauseRanchAndLaunch(SCENE_ECHO_DANCE);
       } else if (gameId === 'harmony-garden') {
-        const ranch = this.phaserGame!.scene.getScene(SCENE_RANCH) as Scene | null;
-        ranch?.scene.pause();
-        ranch?.scene.launch(SCENE_HARMONY_GARDEN);
+        this.pauseRanchAndLaunch(SCENE_HARMONY_GARDEN);
       }
+    });
+  }
+
+  launchAdventure(): void {
+    if (!this.phaserGame || !this.playerStore.canPlayWeekend() || this.playerStore.weekendAdventureDone()) {
+      return;
+    }
+    this.zone.run(() => {
+      this.activeMinigame.set('adventure');
+      this.pauseRanchAndLaunch(SCENE_ADVENTURE);
+    });
+  }
+
+  launchTournament(): void {
+    if (!this.phaserGame || !this.playerStore.canPlayWeekend() || this.playerStore.weekendTournamentDone()) {
+      return;
+    }
+    this.zone.run(() => {
+      this.activeMinigame.set('tournament');
+      this.pauseRanchAndLaunch(SCENE_TOURNAMENT);
     });
   }
 
@@ -140,13 +191,52 @@ export class GameBridgeService {
     }
     this.zone.run(() => {
       this.activeMinigame.set(null);
-      const dance = this.phaserGame!.scene.getScene(SCENE_ECHO_DANCE) as Scene | null;
-      dance?.scene.stop();
-      const garden = this.phaserGame!.scene.getScene(SCENE_HARMONY_GARDEN) as Scene | null;
-      garden?.scene.stop();
+      for (const key of [
+        SCENE_ECHO_DANCE,
+        SCENE_HARMONY_GARDEN,
+        SCENE_ADVENTURE,
+        SCENE_TOURNAMENT,
+      ]) {
+        const scene = this.phaserGame!.scene.getScene(key) as Scene | null;
+        scene?.scene.stop();
+      }
       const ranch = this.phaserGame!.scene.getScene(SCENE_RANCH) as Scene | null;
       ranch?.scene.resume();
     });
+  }
+
+  completeAdventure(result: AdventureResult): void {
+    this.zone.run(() => {
+      void result.adventureId;
+      void result.endingId;
+      void result.axisScores;
+      this.playerStore.applyAdventureRewards(result.dominantAxis, result.endingId);
+      this.lastEvent.set({ type: 'resonance-update', axis: result.dominantAxis, at: Date.now() });
+      this.emitGame('bridge-resonance-pulse', result.dominantAxis);
+      this.returnToRanch();
+    });
+  }
+
+  completeTournament(result: TournamentResult): void {
+    this.zone.run(() => {
+      void result.grade;
+      void result.score;
+      void result.perfects;
+      void result.goods;
+      void result.misses;
+      void result.opponent;
+      void result.rank;
+      this.playerStore.applyTournamentResult(result.won);
+      this.lastEvent.set({ type: 'resonance-update', axis: 'courage', at: Date.now() });
+      this.emitGame('bridge-resonance-pulse', 'courage');
+      this.returnToRanch();
+    });
+  }
+
+  private pauseRanchAndLaunch(sceneKey: string): void {
+    const ranch = this.phaserGame!.scene.getScene(SCENE_RANCH) as Scene | null;
+    ranch?.scene.pause();
+    ranch?.scene.launch(sceneKey);
   }
 
   completeMinigame(result: MinigameResult): void {

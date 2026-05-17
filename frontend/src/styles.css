@@ -11,6 +11,11 @@
   --eor-focus: #2a6fdb;
   --eor-accent: #6b8cff;
   --eor-accent-2: #9b7dff;
+  --eor-hud-bg: color-mix(in srgb, var(--eor-surface) 78%, transparent);
+  --eor-hud-blur: blur(12px);
+  --eor-hud-radius: 14px;
+  --eor-ranch-dock-height: 3.25rem;
+  --eor-ranch-quick-care-height: 3.75rem;
 }
 
 @media (prefers-color-scheme: dark) {

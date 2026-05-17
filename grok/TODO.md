@@ -39,35 +39,39 @@ See **[MVP_PLAN.md](MVP_PLAN.md)** for full spec.
 - [x] Planner UI on `/ranch` + **End Week** button
 
 ### M3 — Stats + week resolution
-- [ ] MR stats: power / speed / defense / life
-- [ ] `WeekResolverService` applies slot payouts
+- [x] MR stats: power / speed / defense / life
+- [x] `WeekResolverService` applies slot payouts
 
 ### M4 — Adventures (non-negotiable)
-- [ ] `AdventureScene` — lite weekend expedition (3–5 nodes)
+- [x] `AdventureScene` — lite weekend expedition (3–5 nodes)
 
 ### M5 — Tournaments (non-negotiable)
-- [ ] `TournamentScene` — **light timing** combat (not full auto)
+- [x] `TournamentScene` — **light timing** combat (not full auto)
 
-### M6 — Evolution v1
-- [ ] Automatic Stage 1 from resonance profile + week gate
-- [ ] Sprite swap + evolution overlay copy
+### M6 — Care meters
+- [x] Fatigue + happiness integration; dissonance visuals
 
-### M7 — Care meters
-- [ ] Fatigue + happiness integration; dissonance visuals
-
-### M8 — Polish
-- [ ] Starter idle/walk or sheet; mobile QA on planner + combat
+### M7 — Polish
+- [x] Fullscreen ranch canvas + immersive app shell (no header/footer on `/ranch`)
+- [x] HUD overlays: top care strip, action dock, slide-up plan sheet (week + status tabs)
+- [x] Hide Angular HUD during minigames / adventure / tournament
+- [x] Ranch background PNG (`backgroundColorGrass`); Echo idle bob tween
+- [ ] Starter walk sheet (deferred); full device QA pass on planner + combat
 
 ## Later phases (post-MVP)
 
-### Phase 7 – Multi-Echo & Ranch Expansion
+### Phase 7 — Evolution v1
+- [ ] Automatic Stage 1 from resonance profile + week gate
+- [ ] Sprite swap + evolution overlay copy
+
+### Phase 8 – Multi-Echo & Ranch Expansion
 - [ ] Ranch customization, memory shards
 - [ ] Breeding / egg tease (beyond starter pick)
 
-### Phase 8 – Mobile & Polish
+### Phase 9 – Mobile & Polish
 - [ ] PWA, Capacitor, tutorial flow
 
-### Phase 9 – Backend return
+### Phase 10 – Backend return
 - [ ] Re-enable API sync when loop is fun
 - [ ] Auth, leaderboards, server-validated minigames
 

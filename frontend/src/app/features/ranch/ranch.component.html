@@ -1,57 +1,98 @@
-<section class="ranch" aria-labelledby="ranch-heading">
-  <div class="ranch__toolbar">
-    <a routerLink="/" class="ranch__link">← Home</a>
-    <h2 id="ranch-heading" class="ranch__title">Sky Ranch</h2>
-    @if (store.currentEcho(); as echo) {
-      <p class="ranch__echo">
-        Echo: <strong>{{ echo.displayName }}</strong>
-        <span class="ranch__muted">Happiness {{ store.happiness() }}%</span>
-      </p>
+<div class="ranch ranch--immersive">
+  <div class="ranch__stage" aria-hidden="true">
+    <app-phaser-game [immersive]="true" />
+  </div>
+
+  @if (!bridge.activeMinigame()) {
+    <header class="ranch__hud-top">
+      <div class="ranch__hud-top-inner">
+        <a routerLink="/" class="ranch__back" aria-label="Back to home">←</a>
+        <div class="ranch__hud-meta">
+          <span class="ranch__week">Week {{ store.gameWeek() }}</span>
+          <span class="ranch__echo-name">{{ store.currentEcho()?.displayName ?? 'Echo' }}</span>
+        </div>
+        <div class="ranch__shards" aria-label="Resonance shards">
+          <span class="ranch__shards-label">✦</span>
+          <span class="ranch__shards-value">{{ store.resonanceShards() }}</span>
+        </div>
+      </div>
+      <app-care-meters compact />
+    </header>
+
+    @if (playingOffline()) {
+      <p class="ranch__offline" role="status">Offline — progress saves on this device.</p>
     }
-  </div>
 
-  <app-resonance-bars />
+    <div class="ranch__hud-dock-wrap">
+      <app-ranch-hud-dock
+        [planSheetOpen]="planSheetOpen()"
+        (echoDance)="launchEchoDance()"
+        (harmonyGarden)="launchHarmonyGarden()"
+        (openPlan)="togglePlanSheet()"
+        (openEvolution)="evolutionOpen.set(true)"
+      />
+    </div>
 
-  @if (playingOffline()) {
-    <p class="ranch__notice ranch__notice--warn" role="status">
-      Playing offline — changes will sync when the server is available.
-    </p>
+    <app-quick-care-bar immersive />
+
+    @if (planSheetOpen()) {
+      <button
+        type="button"
+        class="ranch__sheet-backdrop"
+        aria-label="Close plan panel"
+        (click)="closePlanSheet()"
+      ></button>
+      <section class="ranch__sheet" role="dialog" aria-modal="true" aria-labelledby="ranch-sheet-title">
+        <header class="ranch__sheet-header">
+          <h2 id="ranch-sheet-title" class="ranch__sheet-title">Keeper plan</h2>
+          <button type="button" class="ranch__sheet-close" (click)="closePlanSheet()" aria-label="Close">✕</button>
+        </header>
+
+        <div class="ranch__sheet-tabs" role="tablist" aria-label="Plan panel sections">
+          <button
+            type="button"
+            role="tab"
+            class="ranch__sheet-tab"
+            [class.ranch__sheet-tab--active]="sheetTab() === 'plan'"
+            [attr.aria-selected]="sheetTab() === 'plan'"
+            (click)="sheetTab.set('plan')"
+          >
+            Week
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="ranch__sheet-tab"
+            [class.ranch__sheet-tab--active]="sheetTab() === 'status'"
+            [attr.aria-selected]="sheetTab() === 'status'"
+            (click)="sheetTab.set('status')"
+          >
+            Status
+          </button>
+        </div>
+
+        <div class="ranch__sheet-body">
+          @if (sheetTab() === 'plan') {
+            <app-week-planner (endWeek)="onEndWeek()" />
+            <app-weekend-panel />
+            @if (weekNotice()) {
+              <p class="ranch__notice ranch__notice--success" role="status">{{ weekNotice() }}</p>
+            }
+            @if (weekSlotSummaries().length) {
+              <ul class="ranch__week-log">
+                @for (line of weekSlotSummaries(); track $index) {
+                  <li>{{ line }}</li>
+                }
+              </ul>
+            }
+          } @else {
+            <app-mr-stats />
+            <app-resonance-bars />
+          }
+        </div>
+      </section>
+    }
+
+    <app-evolution-overlay [open]="evolutionOpen()" (closed)="evolutionOpen.set(false)" />
   }
-
-  @if (store.passiveCapReached()) {
-    <p class="ranch__notice" role="status">Passive resonance is gentle today — cap reached. Active play still helps!</p>
-  }
-
-  <div class="ranch__meta">
-    <span>Week {{ store.gameWeek() }}</span>
-    <span>Keeper Lv. {{ store.keeperLevel() }}</span>
-    <span>Shards {{ store.resonanceShards() }}</span>
-    <span>Pets {{ store.petCount() }}</span>
-  </div>
-
-  <app-week-planner (endWeek)="onEndWeek()" />
-
-  @if (weekNotice()) {
-    <p class="ranch__notice ranch__notice--success" role="status">{{ weekNotice() }}</p>
-  }
-
-  <div class="ranch__actions">
-    <button type="button" class="ranch__btn ranch__btn--primary" (click)="launchEchoDance()">
-      Echo Dance
-    </button>
-    <button type="button" class="ranch__btn ranch__btn--ghost" (click)="launchHarmonyGarden()">
-      Harmony Garden
-    </button>
-    <button type="button" class="ranch__btn ranch__btn--ghost" (click)="evolutionOpen.set(true)">
-      Evolution
-    </button>
-  </div>
-
-  <div class="ranch__canvas-wrap">
-    <app-phaser-game />
-  </div>
-</section>
-
-<app-evolution-overlay [open]="evolutionOpen()" (closed)="evolutionOpen.set(false)" />
-
-<app-quick-care-bar />
+</div>

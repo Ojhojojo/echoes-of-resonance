@@ -1,10 +1,28 @@
 import { Injectable, computed, signal } from '@angular/core';
 import {
+  clampCareValue,
+  computeCareState,
+  type CareState,
+} from '../data/care-meters';
+import {
   FLUFFLING_ECHO_ID,
   getEchoDefinition,
   isStarterEchoId,
   type StarterEchoId,
 } from '../data/echo-catalog';
+import {
+  clampMrStat,
+  DEFAULT_MR_STATS,
+  normalizeMrStats,
+  type MrStatKey,
+  type MrStats,
+} from '../data/echo-stats';
+import type { SlotPayout } from '../data/training-payouts';
+import {
+  advanceTournamentRank,
+  normalizeTournamentRank,
+  type TournamentRank,
+} from '../data/tournament-data';
 import {
   createEmptyTrainingPlan,
   isTrainingPlanComplete,
@@ -38,6 +56,7 @@ export interface PlayerSnapshot {
   resonanceShards: number;
   petCount: number;
   happiness: number;
+  fatigue?: number;
   lastInteractionAt: number;
   passivePointsToday: number;
   passiveDayKey: string;
@@ -51,6 +70,14 @@ export interface PlayerSnapshot {
   gameWeek?: number;
   /** Mon–Fri training slots (M2). */
   trainingPlan?: TrainingPlan;
+  /** MR combat stats (M3). */
+  power?: number;
+  speed?: number;
+  defense?: number;
+  life?: number;
+  weekendAdventureDone?: boolean;
+  weekendTournamentDone?: boolean;
+  tournamentRank?: TournamentRank;
 }
 
 /**
@@ -76,6 +103,13 @@ export class PlayerStore {
   readonly petCount = signal(0);
 
   readonly happiness = signal(100);
+  /** 0 = rested, 100 = exhausted. */
+  readonly fatigue = signal(0);
+
+  readonly careState = computed<CareState>(() =>
+    computeCareState(this.happiness(), this.fatigue()),
+  );
+
   readonly lastInteractionAt = signal(Date.now());
   readonly passivePointsToday = signal(0);
   readonly passiveDayKey = signal(this.todayKey());
@@ -100,6 +134,33 @@ export class PlayerStore {
   readonly trainingPlan = signal<TrainingPlan>(createEmptyTrainingPlan());
 
   readonly trainingPlanComplete = computed(() => isTrainingPlanComplete(this.trainingPlan()));
+
+  readonly weekendAdventureDone = signal(false);
+  readonly weekendTournamentDone = signal(false);
+  readonly tournamentRank = signal<TournamentRank>('D');
+
+  readonly canPlayWeekend = computed(
+    () => this.trainingPlanComplete() && this.hasHatched(),
+  );
+
+  readonly canEndWeek = computed(
+    () =>
+      this.trainingPlanComplete() &&
+      this.weekendAdventureDone() &&
+      this.weekendTournamentDone(),
+  );
+
+  readonly power = signal(DEFAULT_MR_STATS.power);
+  readonly speed = signal(DEFAULT_MR_STATS.speed);
+  readonly defense = signal(DEFAULT_MR_STATS.defense);
+  readonly life = signal(DEFAULT_MR_STATS.life);
+
+  readonly mrStats = computed<MrStats>(() => ({
+    power: this.power(),
+    speed: this.speed(),
+    defense: this.defense(),
+    life: this.life(),
+  }));
 
   readonly totalResonance = computed(
     () => this.joy() + this.discipline() + this.courage() + this.harmony(),
@@ -141,6 +202,7 @@ export class PlayerStore {
     this.resonanceShards.set(0);
     this.petCount.set(0);
     this.happiness.set(100);
+    this.fatigue.set(0);
     this.passivePointsToday.set(0);
     this.passiveDayKey.set(this.todayKey());
     this.passiveCapReached.set(false);
@@ -150,6 +212,112 @@ export class PlayerStore {
     this.peakTotalResonanceAsFluffling.set(0);
     this.gameWeek.set(1);
     this.trainingPlan.set(createEmptyTrainingPlan());
+    this.power.set(DEFAULT_MR_STATS.power);
+    this.speed.set(DEFAULT_MR_STATS.speed);
+    this.defense.set(DEFAULT_MR_STATS.defense);
+    this.life.set(DEFAULT_MR_STATS.life);
+    this.weekendAdventureDone.set(false);
+    this.weekendTournamentDone.set(false);
+    this.tournamentRank.set('D');
+  }
+
+  resetWeekendProgress(): void {
+    this.weekendAdventureDone.set(false);
+    this.weekendTournamentDone.set(false);
+  }
+
+  adjustHappiness(delta: number): void {
+    this.happiness.set(clampCareValue(this.happiness() + delta));
+  }
+
+  adjustFatigue(delta: number): void {
+    this.fatigue.set(clampCareValue(this.fatigue() + delta));
+  }
+
+  /** Long absence — gentle neglect pressure (hydrate). */
+  applyCatchUpCare(hoursAway: number): void {
+    if (hoursAway < 8) {
+      return;
+    }
+    const days = Math.min(3, Math.floor(hoursAway / 24));
+    this.adjustFatigue(days * 6);
+    this.adjustHappiness(-days * 4);
+  }
+
+  /** Called when resolving the training plan at End Week. */
+  applyWeeklyCareSettlement(plan: TrainingPlan): void {
+    const restDays = plan.filter((slot) => slot === 'rest').length;
+    if (restDays === 0) {
+      this.adjustFatigue(12);
+      this.adjustHappiness(-4);
+    } else if (restDays >= 2) {
+      this.adjustFatigue(-6);
+      this.adjustHappiness(3);
+    }
+
+    const care = this.careState();
+    if (care.dissonance === 'strong') {
+      this.adjustHappiness(-6);
+    } else if (care.dissonance === 'mild') {
+      this.adjustHappiness(-2);
+    }
+  }
+
+  applyAdventureRewards(dominantAxis: ResonanceAxis, endingId?: string): void {
+    this.addAxis('courage', 12);
+    if (endingId === 'balanced') {
+      this.addAxis('joy', 8);
+      this.addAxis('harmony', 8);
+      this.addAxis('discipline', 6);
+      this.addAxis('courage', 6);
+      this.applyMrStatDelta({ power: 2, speed: 2, defense: 2, life: 2 });
+      this.resonanceShards.update((c) => c + 2);
+      this.happiness.update((h) => Math.min(100, h + 8));
+      this.adjustFatigue(6);
+      this.weekendAdventureDone.set(true);
+      return;
+    }
+    switch (dominantAxis) {
+      case 'joy':
+        this.addAxis('joy', 16);
+        this.applyMrStatDelta({ speed: 4 });
+        break;
+      case 'discipline':
+        this.addAxis('discipline', 14);
+        this.applyMrStatDelta({ defense: 4 });
+        break;
+      case 'courage':
+        this.addAxis('courage', 10);
+        this.applyMrStatDelta({ power: 4 });
+        break;
+      case 'harmony':
+        this.addAxis('harmony', 16);
+        this.applyMrStatDelta({ life: 4 });
+        break;
+    }
+    this.resonanceShards.update((c) => c + 1);
+    this.happiness.update((h) => Math.min(100, h + 6));
+    this.adjustFatigue(8);
+    this.weekendAdventureDone.set(true);
+  }
+
+  applyTournamentResult(won: boolean): void {
+    if (won) {
+      this.addAxis('courage', 10);
+      this.addAxis('discipline', 6);
+      this.applyMrStatDelta({ power: 4, speed: 4 });
+      this.happiness.update((h) => Math.min(100, h + 5));
+      this.adjustFatigue(-4);
+      this.tournamentRank.update((r) => advanceTournamentRank(r));
+    } else {
+      this.addAxis('courage', 5);
+      this.addAxis('harmony', 6);
+      this.applyMrStatDelta({ defense: 3, life: 3 });
+      this.happiness.update((h) => Math.min(100, Math.max(0, h - 2)));
+      this.adjustFatigue(10);
+    }
+    this.resonanceShards.update((c) => c + (won ? 2 : 1));
+    this.weekendTournamentDone.set(true);
   }
 
   recordEchoDanceCompletion(): void {
@@ -205,7 +373,8 @@ export class PlayerStore {
     this.addAxis('joy', 4);
     this.addAxis('harmony', 1);
     this.petCount.update((n) => n + 1);
-    this.happiness.update((h) => Math.min(100, h + 2));
+    this.adjustHappiness(3);
+    this.adjustFatigue(-4);
   }
 
   applyQuickCare(kind: QuickCareKind): boolean {
@@ -223,7 +392,8 @@ export class PlayerStore {
     this.addAxis('harmony', harmonyShare);
     this.addAxis('courage', Math.max(0, courageShare));
     this.addAxis('discipline', Math.max(0, disciplineShare));
-    this.happiness.update((h) => Math.min(100, h + 3));
+    this.adjustHappiness(4);
+    this.adjustFatigue(-6);
     this.resonanceShards.update((c) => c + 1);
 
     const map = { ...this.lastQuickCareAt() };
@@ -250,7 +420,8 @@ export class PlayerStore {
     this.addAxis('harmony', harmonyGain);
     this.addAxis('courage', Math.max(0, courageGain));
     this.resonanceShards.update((c) => c + 2);
-    this.happiness.update((h) => Math.min(100, h + 5));
+    this.adjustHappiness(5);
+    this.adjustFatigue(6);
   }
 
   /** Harmony Garden payout — Harmony-biased (Phase 6 prototype). */
@@ -266,7 +437,8 @@ export class PlayerStore {
     this.addAxis('joy', joyGain);
     this.addAxis('courage', courageGain);
     this.addAxis('discipline', disciplineGain);
-    this.happiness.update((h) => Math.min(100, h + 4));
+    this.adjustHappiness(4);
+    this.adjustFatigue(5);
     this.resonanceShards.update((c) => c + 1);
   }
 
@@ -349,6 +521,70 @@ export class PlayerStore {
     this.keeperLevel.set(Math.max(1, Math.floor(level)));
   }
 
+  applyMrStatDelta(delta: Partial<MrStats>): void {
+    if (delta.power) {
+      this.power.update((v) => clampMrStat(v + delta.power!));
+    }
+    if (delta.speed) {
+      this.speed.update((v) => clampMrStat(v + delta.speed!));
+    }
+    if (delta.defense) {
+      this.defense.update((v) => clampMrStat(v + delta.defense!));
+    }
+    if (delta.life) {
+      this.life.update((v) => clampMrStat(v + delta.life!));
+    }
+  }
+
+  setMrStat(key: MrStatKey, value: number): void {
+    const v = clampMrStat(value);
+    switch (key) {
+      case 'power':
+        this.power.set(v);
+        break;
+      case 'speed':
+        this.speed.set(v);
+        break;
+      case 'defense':
+        this.defense.set(v);
+        break;
+      case 'life':
+        this.life.set(v);
+        break;
+    }
+  }
+
+  /** Applies one training-day payout (used by WeekResolverService). */
+  applySlotPayout(payout: SlotPayout): void {
+    if (payout.joy) {
+      this.addAxis('joy', payout.joy);
+    }
+    if (payout.discipline) {
+      this.addAxis('discipline', payout.discipline);
+    }
+    if (payout.courage) {
+      this.addAxis('courage', payout.courage);
+    }
+    if (payout.harmony) {
+      this.addAxis('harmony', payout.harmony);
+    }
+    this.applyMrStatDelta({
+      power: payout.power,
+      speed: payout.speed,
+      defense: payout.defense,
+      life: payout.life,
+    });
+    if (payout.happiness) {
+      this.adjustHappiness(payout.happiness);
+    }
+    if (payout.fatigue) {
+      this.adjustFatigue(payout.fatigue);
+    }
+    if (payout.shards) {
+      this.resonanceShards.update((c) => c + payout.shards!);
+    }
+  }
+
   setTrainingSlot(dayIndex: number, activity: TrainingActivityId | null): void {
     if (dayIndex < 0 || dayIndex >= 5) {
       return;
@@ -357,18 +593,6 @@ export class PlayerStore {
     plan[dayIndex] = activity;
     this.trainingPlan.set(plan);
     this.touchInteraction();
-  }
-
-  /** Advances game week and clears the plan (slot payouts in M3). */
-  endWeek(): boolean {
-    if (!isTrainingPlanComplete(this.trainingPlan())) {
-      return false;
-    }
-
-    this.gameWeek.update((w) => Math.max(1, w) + 1);
-    this.trainingPlan.set(createEmptyTrainingPlan());
-    this.touchInteraction();
-    return true;
   }
 
   toSnapshot(): PlayerSnapshot {
@@ -384,6 +608,7 @@ export class PlayerStore {
       resonanceShards: this.resonanceShards(),
       petCount: this.petCount(),
       happiness: this.happiness(),
+      fatigue: this.fatigue(),
       lastInteractionAt: this.lastInteractionAt(),
       passivePointsToday: this.passivePointsToday(),
       passiveDayKey: this.passiveDayKey(),
@@ -394,6 +619,13 @@ export class PlayerStore {
       peakTotalResonanceAsFluffling: this.peakTotalResonanceAsFluffling(),
       gameWeek: this.gameWeek(),
       trainingPlan: [...this.trainingPlan()] as TrainingPlan,
+      power: this.power(),
+      speed: this.speed(),
+      defense: this.defense(),
+      life: this.life(),
+      weekendAdventureDone: this.weekendAdventureDone(),
+      weekendTournamentDone: this.weekendTournamentDone(),
+      tournamentRank: this.tournamentRank(),
     };
   }
 
@@ -412,7 +644,8 @@ export class PlayerStore {
     this.keeperLevel.set(data.keeperLevel ?? 1);
     this.resonanceShards.set(data.resonanceShards ?? 0);
     this.petCount.set(data.petCount ?? 0);
-    this.happiness.set(Math.max(0, Math.min(100, data.happiness ?? 100)));
+    this.happiness.set(clampCareValue(data.happiness ?? 100));
+    this.fatigue.set(clampCareValue(data.fatigue ?? 0));
     this.lastInteractionAt.set(data.lastInteractionAt ?? Date.now());
     this.passivePointsToday.set(data.passivePointsToday ?? 0);
     this.passiveDayKey.set(data.passiveDayKey ?? this.todayKey());
@@ -448,6 +681,19 @@ export class PlayerStore {
     this.echoDanceCompletions.set(Math.max(0, data.echoDanceCompletions ?? 0));
     this.gameWeek.set(Math.max(1, data.gameWeek ?? 1));
     this.trainingPlan.set(normalizeTrainingPlan(data.trainingPlan));
+    const stats = normalizeMrStats({
+      power: data.power,
+      speed: data.speed,
+      defense: data.defense,
+      life: data.life,
+    });
+    this.power.set(stats.power);
+    this.speed.set(stats.speed);
+    this.defense.set(stats.defense);
+    this.life.set(stats.life);
+    this.weekendAdventureDone.set(!!data.weekendAdventureDone);
+    this.weekendTournamentDone.set(!!data.weekendTournamentDone);
+    this.tournamentRank.set(normalizeTournamentRank(data.tournamentRank));
 
     let current = data.currentEcho;
     if (current && !this.unlockedEchoIds().includes(current.echoId)) {

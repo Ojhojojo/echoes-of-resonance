@@ -1,0 +1,55 @@
+.ranch-dock {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 0.35rem;
+  padding: 0.35rem 0.5rem;
+  background: var(--eor-hud-bg);
+  backdrop-filter: var(--eor-hud-blur);
+  border-radius: var(--eor-hud-radius) var(--eor-hud-radius) 0 0;
+  border: 1px solid var(--eor-border);
+  border-bottom: none;
+  pointer-events: auto;
+}
+
+.ranch-dock__btn {
+  flex: 1;
+  min-width: 0;
+  max-width: 5.5rem;
+  min-height: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  padding: 0.25rem 0.2rem;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--eor-text);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.ranch-dock__btn:hover {
+  background: color-mix(in srgb, var(--eor-surface-2) 80%, transparent);
+}
+
+.ranch-dock__btn:focus-visible {
+  outline: 2px solid var(--eor-focus);
+  outline-offset: 2px;
+}
+
+.ranch-dock__btn--active {
+  background: color-mix(in srgb, var(--eor-accent) 22%, var(--eor-surface-2));
+}
+
+.ranch-dock__icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.ranch-dock__label {
+  font-size: clamp(0.62rem, 2.5vw, 0.72rem);
+  font-weight: 600;
+}

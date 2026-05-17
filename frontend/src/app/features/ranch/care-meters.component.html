@@ -1,0 +1,59 @@
+<section class="care-meters" [attr.aria-labelledby]="compact() ? null : 'care-meters-heading'">
+  @if (!compact()) {
+    <h3 id="care-meters-heading" class="care-meters__title">Care</h3>
+  }
+
+  <div class="care-meters__row">
+    <label class="care-meters__label" for="care-happiness">Happiness</label>
+    <div
+      id="care-happiness"
+      class="care-meters__track"
+      role="meter"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      [attr.aria-valuenow]="store.careState().happiness"
+    >
+      <div
+        class="care-meters__fill care-meters__fill--happiness"
+        [class.care-meters__fill--mild]="store.careState().dissonance === 'mild'"
+        [class.care-meters__fill--strong]="store.careState().dissonance === 'strong'"
+        [style.width.%]="store.careState().happiness"
+      ></div>
+    </div>
+    <span class="care-meters__value">{{ store.careState().happiness }}%</span>
+  </div>
+
+  <div class="care-meters__row">
+    <label class="care-meters__label" for="care-fatigue">Fatigue</label>
+    <div
+      id="care-fatigue"
+      class="care-meters__track"
+      role="meter"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      [attr.aria-valuenow]="store.careState().fatigue"
+    >
+      <div
+        class="care-meters__fill care-meters__fill--fatigue"
+        [class.care-meters__fill--mild]="store.careState().dissonance === 'mild'"
+        [class.care-meters__fill--strong]="store.careState().dissonance === 'strong'"
+        [style.width.%]="store.careState().fatigue"
+      ></div>
+    </div>
+    <span class="care-meters__value">{{ store.careState().fatigue }}%</span>
+  </div>
+
+  @if (!compact()) {
+    <p
+      class="care-meters__message"
+      [class.care-meters__message--dissonance]="store.careState().inDissonance"
+      role="status"
+    >
+      {{ store.careState().careMessage }}
+    </p>
+  } @else if (store.careState().inDissonance) {
+    <p class="care-meters__message care-meters__message--compact" role="status">
+      {{ store.careState().careMessage }}
+    </p>
+  }
+</section>

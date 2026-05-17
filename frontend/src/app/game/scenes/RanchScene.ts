@@ -5,6 +5,7 @@ import {
   getEchoDefinition,
   starterTextureKeys,
 } from '../../core/data/echo-catalog';
+import type { DissonanceLevel } from '../../core/data/care-meters';
 import type { GameBridgeService } from '../../core/services/game-bridge.service';
 import { Echo } from '../entities/Echo';
 import { GAME_BRIDGE_REGISTRY_KEY, RANCH_ECHO_REGISTRY_KEY } from '../game-config';
@@ -19,10 +20,12 @@ export class RanchScene extends Phaser.Scene {
   private echoManager!: RanchEchoManager;
   private particles?: Phaser.GameObjects.Particles.ParticleEmitter;
   private dayNightTint!: Phaser.GameObjects.Rectangle;
-  private parallaxFar!: Phaser.GameObjects.Rectangle;
-  private parallaxNear!: Phaser.GameObjects.Rectangle;
+  private parallaxFar?: Phaser.GameObjects.Rectangle | Phaser.GameObjects.Image;
+  private parallaxNear?: Phaser.GameObjects.Rectangle;
   private auraFlash!: Phaser.GameObjects.Rectangle;
-  private ranchSubtitle?: Phaser.GameObjects.Text;
+  private dissonanceVeil!: Phaser.GameObjects.Rectangle;
+  private careDissonance: DissonanceLevel = 'none';
+  private echoHomeX = 0;
   private lastPetMs = 0;
   private petTapCount = 0;
 
@@ -40,9 +43,14 @@ export class RanchScene extends Phaser.Scene {
     const w = this.scale.width;
     const h = this.scale.height;
 
-    this.parallaxFar = this.add.rectangle(w / 2, h * 0.25, w * 1.2, h * 0.5, 0x7ec8ff, 1).setDepth(0);
-    this.parallaxNear = this.add.rectangle(w / 2, h * 0.75, w * 1.1, h * 0.55, 0xffd6e8, 0.9).setDepth(1);
-    this.add.rectangle(w / 2, h * 0.92, w, h * 0.18, 0xc8f5c8, 0.55).setDepth(1);
+    if (this.textures.exists('ranch-bg')) {
+      this.parallaxFar = this.add.image(w / 2, h / 2, 'ranch-bg').setDepth(0);
+      this.parallaxFar.setDisplaySize(w, h);
+    } else {
+      this.parallaxFar = this.add.rectangle(w / 2, h * 0.25, w * 1.2, h * 0.5, 0x7ec8ff, 1).setDepth(0);
+      this.parallaxNear = this.add.rectangle(w / 2, h * 0.75, w * 1.1, h * 0.55, 0xffd6e8, 0.9).setDepth(1);
+      this.add.rectangle(w / 2, h * 0.92, w, h * 0.18, 0xc8f5c8, 0.55).setDepth(1);
+    }
 
     this.dayNightTint = this.add
       .rectangle(w / 2, h / 2, w, h, 0x1a2040, 0)
@@ -52,6 +60,11 @@ export class RanchScene extends Phaser.Scene {
     this.auraFlash = this.add
       .rectangle(w / 2, h / 2, w, h, 0xffe08a, 0)
       .setDepth(6)
+      .setScrollFactor(0);
+
+    this.dissonanceVeil = this.add
+      .rectangle(w / 2, h / 2, w, h, 0x4a2060, 0)
+      .setDepth(7)
       .setScrollFactor(0);
 
     this.tweens.add({
@@ -74,6 +87,7 @@ export class RanchScene extends Phaser.Scene {
     const displayName = this.displayNameForEchoId(regEchoId);
 
     this.echoEntity = new Echo(this, w * 0.5, h * 0.52, textureKey, regEchoId, displayName);
+    this.echoHomeX = this.echoEntity.x;
     this.echoManager = new RanchEchoManager(this.echoEntity, bounds);
 
     this.echoEntity.sprite.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
@@ -82,28 +96,23 @@ export class RanchScene extends Phaser.Scene {
 
     this.rebuildParticles(textureKey, this.particleTintForEchoId(regEchoId));
 
-    this.ranchSubtitle = this.add
-      .text(w / 2, h * 0.08, this.ranchSubtitleText(displayName), {
-        fontFamily: 'system-ui, Segoe UI, sans-serif',
-        fontSize: '20px',
-        color: '#1a2b3c',
-      })
-      .setOrigin(0.5)
-      .setDepth(10);
-
     this.game.events.on('bridge-ranch-echo', this.onBridgeRanchEcho, this);
     this.game.events.on('bridge-quick-care', this.onQuickCareFx, this);
     this.game.events.on('bridge-drift-tick', this.onDriftFx, this);
     this.game.events.on('bridge-resonance-pulse', this.onResonancePulse, this);
+    this.game.events.on('bridge-care-state', this.onCareState, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this);
+
+    const bridge = this.getBridge();
+    if (bridge) {
+      this.onCareState(undefined, bridge.getCareState());
+    }
   }
 
   override update(time: number, delta: number): void {
     this.echoManager.update(this, time, delta);
-    if (this.parallaxFar) {
+    if (this.parallaxFar && this.parallaxNear) {
       this.parallaxFar.x = this.scale.width / 2 + Math.sin(time / 4000) * 12;
-    }
-    if (this.parallaxNear) {
       this.parallaxNear.x = this.scale.width / 2 + Math.sin(time / 2800) * 18;
     }
   }
@@ -113,6 +122,48 @@ export class RanchScene extends Phaser.Scene {
     this.game.events.off('bridge-quick-care', this.onQuickCareFx, this);
     this.game.events.off('bridge-drift-tick', this.onDriftFx, this);
     this.game.events.off('bridge-resonance-pulse', this.onResonancePulse, this);
+    this.game.events.off('bridge-care-state', this.onCareState, this);
+  }
+
+  private onCareState(_: unknown, state: { dissonance: DissonanceLevel } | undefined): void {
+    if (!state || !this.echoEntity) {
+      return;
+    }
+    if (this.careDissonance === state.dissonance) {
+      return;
+    }
+    this.careDissonance = state.dissonance;
+    this.applyDissonanceVisuals(state.dissonance);
+  }
+
+  private applyDissonanceVisuals(level: DissonanceLevel): void {
+    if (!this.dissonanceVeil || !this.echoEntity) {
+      return;
+    }
+
+    const targetAlpha = level === 'strong' ? 0.34 : level === 'mild' ? 0.16 : 0;
+    this.tweens.add({
+      targets: this.dissonanceVeil,
+      alpha: targetAlpha,
+      duration: 600,
+      ease: 'Sine.easeInOut',
+    });
+
+    this.echoEntity.applyDissonanceVisual(level);
+
+    if (level === 'strong') {
+      this.tweens.add({
+        targets: this.echoEntity.sprite,
+        x: this.echoHomeX + 3,
+        duration: 900,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+    } else {
+      this.tweens.killTweensOf(this.echoEntity.sprite);
+      this.echoEntity.sprite.setX(this.echoHomeX);
+    }
   }
 
   private onBridgeRanchEcho(
@@ -127,7 +178,6 @@ export class RanchScene extends Phaser.Scene {
     this.ensureEchoTextures();
     this.echoEntity.applySkin(textureKey, payload.echoId, name);
     this.rebuildParticles(textureKey, this.particleTintForEchoId(payload.echoId));
-    this.ranchSubtitle?.setText(this.ranchSubtitleText(name));
   }
 
   private ensureEchoTextures(): void {
@@ -155,10 +205,6 @@ export class RanchScene extends Phaser.Scene {
       default:
         return 0xffc870;
     }
-  }
-
-  private ranchSubtitleText(displayName: string): string {
-    return `Sky Ranch — tap ${displayName}`;
   }
 
   private rebuildParticles(textureKey: string, tint: number): void {

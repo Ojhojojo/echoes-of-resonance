@@ -1,0 +1,75 @@
+.weekend {
+  margin-bottom: 0.85rem;
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--eor-accent-2) 35%, var(--eor-border));
+  background: color-mix(in srgb, var(--eor-surface) 90%, var(--eor-accent-2) 8%);
+}
+
+.weekend__header {
+  margin-bottom: 0.6rem;
+}
+
+.weekend__title {
+  margin: 0 0 0.2rem;
+  font-size: 1.05rem;
+}
+
+.weekend__lead {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--eor-muted);
+  line-height: 1.4;
+}
+
+.weekend__locked {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--eor-muted);
+}
+
+.weekend__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+@media (min-width: 520px) {
+  .weekend__actions {
+    flex-direction: row;
+  }
+}
+
+.weekend__btn {
+  flex: 1;
+  min-height: 48px;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--eor-border);
+  background: var(--eor-surface-2);
+  color: var(--eor-text);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.weekend__btn--tournament {
+  border-color: color-mix(in srgb, var(--eor-accent) 50%, var(--eor-border));
+}
+
+.weekend__btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.weekend__btn:focus-visible {
+  outline: 2px solid var(--eor-focus);
+  outline-offset: 2px;
+}
+
+.weekend__meta {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  color: var(--eor-muted);
+}

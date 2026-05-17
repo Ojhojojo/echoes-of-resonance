@@ -3,9 +3,11 @@ import type { GameBridgeService } from '../core/services/game-bridge.service';
 import { createGameConfig, GAME_BRIDGE_REGISTRY_KEY, RANCH_ECHO_REGISTRY_KEY } from './game-config';
 import { SCENE_BOOT, SCENE_RANCH } from './scene-keys';
 import { BootScene } from './scenes/BootScene';
+import { AdventureScene } from './scenes/AdventureScene';
 import { EchoDanceScene } from './scenes/EchoDanceScene';
 import { HarmonyGardenScene } from './scenes/HarmonyGardenScene';
 import { RanchScene } from './scenes/RanchScene';
+import { TournamentScene } from './scenes/TournamentScene';
 
 export function bootstrapPhaserGame(
   host: HTMLElement,
@@ -13,7 +15,7 @@ export function bootstrapPhaserGame(
   sceneKey: string,
 ): Phaser.Game {
   const config = createGameConfig(host);
-  config.scene = [BootScene, RanchScene, EchoDanceScene, HarmonyGardenScene];
+  config.scene = [BootScene, RanchScene, EchoDanceScene, HarmonyGardenScene, AdventureScene, TournamentScene];
 
   const game = new Phaser.Game(config);
   game.registry.set(GAME_BRIDGE_REGISTRY_KEY, bridge);

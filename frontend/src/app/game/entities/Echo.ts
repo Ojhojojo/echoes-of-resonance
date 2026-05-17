@@ -23,6 +23,8 @@ export class Echo {
   private wanderCooldownMs = 0;
   private followUntilMs = 0;
   private followPointer: Phaser.Input.Pointer | null = null;
+  private baseY = 0;
+  private idleBobTween?: Phaser.Tweens.Tween;
 
   constructor(
     scene: Phaser.Scene,
@@ -37,6 +39,8 @@ export class Echo {
     this.sprite = scene.add.sprite(x, y, textureKey);
     this.sprite.setDepth(3);
     this.sprite.setInteractive({ useHandCursor: true });
+    this.baseY = y;
+    this.startIdleBob(scene);
   }
 
   applySkin(textureKey: string, echoId: string, displayName: string): void {
@@ -55,9 +59,28 @@ export class Echo {
 
   setPosition(x: number, y: number): void {
     this.sprite.setPosition(x, y);
+    this.baseY = y;
+  }
+
+  applyDissonanceVisual(level: 'none' | 'mild' | 'strong'): void {
+    switch (level) {
+      case 'none':
+        this.sprite.clearTint();
+        this.sprite.setAlpha(1);
+        break;
+      case 'mild':
+        this.sprite.setTint(0xddd0e8);
+        this.sprite.setAlpha(0.92);
+        break;
+      case 'strong':
+        this.sprite.setTint(0xb8a0c8);
+        this.sprite.setAlpha(0.85);
+        break;
+    }
   }
 
   applyPetReaction(scene: Phaser.Scene): void {
+    this.stopIdleBob();
     this.mood = 'happy';
     scene.tweens.add({
       targets: this.sprite,
@@ -69,12 +92,14 @@ export class Echo {
       onComplete: () => {
         if (this.mood === 'happy' && Date.now() > this.followUntilMs) {
           this.mood = 'idle';
+          this.startIdleBob(scene);
         }
       },
     });
   }
 
   startFollow(pointer: Phaser.Input.Pointer, durationMs = 3000): void {
+    this.stopIdleBob();
     this.mood = 'following';
     this.followPointer = pointer;
     this.followUntilMs = Date.now() + durationMs;
@@ -90,6 +115,7 @@ export class Echo {
     if (this.mood === 'following' && Date.now() >= this.followUntilMs) {
       this.mood = 'idle';
       this.followPointer = null;
+      this.startIdleBob(scene);
     }
 
     this.wanderCooldownMs -= deltaMs;
@@ -109,6 +135,10 @@ export class Echo {
   }
 
   moveToward(tx: number, ty: number, lerp: number): boolean {
+    if (this.mood === 'idle' && this.idleBobTween?.isPlaying()) {
+      this.stopIdleBob();
+    }
+
     const dx = tx - this.sprite.x;
     const dy = ty - this.sprite.y;
     const dist = Math.hypot(dx, dy);
@@ -117,8 +147,31 @@ export class Echo {
     }
     this.sprite.x += dx * lerp;
     this.sprite.y += dy * lerp;
+    this.baseY = this.sprite.y;
     this.sprite.setFlipX(dx < 0);
     return false;
+  }
+
+  private startIdleBob(scene: Phaser.Scene): void {
+    if (this.mood !== 'idle') {
+      return;
+    }
+    this.stopIdleBob();
+    this.sprite.y = this.baseY;
+    this.idleBobTween = scene.tweens.add({
+      targets: this.sprite,
+      y: this.baseY - 6,
+      duration: 1200,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+  }
+
+  private stopIdleBob(): void {
+    this.idleBobTween?.stop();
+    this.idleBobTween = undefined;
+    this.sprite.y = this.baseY;
   }
 
   private pickWanderTarget(bounds: EchoBounds): void {

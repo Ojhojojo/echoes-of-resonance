@@ -70,6 +70,11 @@ cd backend && dotnet run --project EchoesOfResonance.API.csproj
 - [ ] **Evolution:** triggers **automatically** (no branch picker); sprite updates
 - [ ] **localStorage:** clear test — progress survives refresh; `clientOnly` needs no API
 - [ ] Echo Dance / Harmony Garden still launch from planned slots
+- [ ] **Immersive ranch** (`/ranch`): no page scroll; canvas edge-to-edge; dock + Quick Care do not overlap (safe-area on notch devices)
+- [ ] **Plan sheet:** Week tab — assign Mon–Fri, weekend adventure/tournament, End Week at **390×844**
+- [ ] **Plan sheet:** Status tab — MR stats + resonance bars readable
+- [ ] Launch Dance / Garden / Adventure / Tournament — HUD hidden; return restores HUD
+- [ ] Desktop fullscreen: same layout (not centered dashboard); plan sheet max ~480px centered
 - [ ] Mobile ~390px: planner, Quick Care, timing combat usable
 
 ## Parked (post-MVP)

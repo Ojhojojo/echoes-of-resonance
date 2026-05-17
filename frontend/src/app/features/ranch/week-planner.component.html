@@ -30,13 +30,15 @@
     <button
       type="button"
       class="week-planner__end"
-      [disabled]="!store.trainingPlanComplete()"
+      [disabled]="!store.canEndWeek()"
       (click)="requestEndWeek()"
     >
       End Week
     </button>
     @if (!store.trainingPlanComplete()) {
-      <p class="week-planner__note" role="status">Fill all five weekdays to end the week.</p>
+      <p class="week-planner__note" role="status">Fill all five weekdays to unlock the weekend.</p>
+    } @else if (!store.canEndWeek()) {
+      <p class="week-planner__note" role="status">Complete the weekend adventure and tournament first.</p>
     }
   </div>
 </section>

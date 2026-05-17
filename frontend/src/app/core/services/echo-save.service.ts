@@ -46,7 +46,7 @@ export class EchoSaveService {
     if (environment.clientOnly) {
       this.loadLocalSnapshot();
       if (this.store.hasHatched()) {
-        this.applyCatchUpDrift();
+        this.applyCatchUpAbsence();
       }
       this.playingOffline.set(false);
       this.scheduleSave();
@@ -178,12 +178,13 @@ export class EchoSaveService {
     }
   }
 
-  private applyCatchUpDrift(): void {
+  private applyCatchUpAbsence(): void {
     const hoursAway = (Date.now() - this.store.lastInteractionAt()) / (1000 * 60 * 60);
     if (hoursAway < 0.25) {
       return;
     }
 
+    this.store.applyCatchUpCare(hoursAway);
     this.store.applyOfflineDriftHours(hoursAway);
     this.store.touchInteraction();
   }

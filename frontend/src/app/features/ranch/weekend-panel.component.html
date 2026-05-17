@@ -1,0 +1,47 @@
+<section class="weekend" aria-labelledby="weekend-heading">
+  <header class="weekend__header">
+    <h3 id="weekend-heading" class="weekend__title">Weekend</h3>
+    <p class="weekend__lead">
+      After planning Mon–Fri, complete the expedition and tournament before ending the week.
+    </p>
+  </header>
+
+  @if (!store.canPlayWeekend()) {
+    <p class="weekend__locked" role="status">Fill your weekday plan to unlock weekend activities.</p>
+  } @else {
+    <div class="weekend__actions">
+      <button
+        type="button"
+        class="weekend__btn"
+        [disabled]="store.weekendAdventureDone() || !bridge.phaserReady()"
+        (click)="launchAdventure()"
+      >
+        @if (store.weekendAdventureDone()) {
+          Lantern Festival ✓
+        } @else {
+          Lantern Festival Adventure
+        }
+      </button>
+
+      <button
+        type="button"
+        class="weekend__btn weekend__btn--tournament"
+        [disabled]="store.weekendTournamentDone() || !bridge.phaserReady()"
+        (click)="launchTournament()"
+      >
+        @if (store.weekendTournamentDone()) {
+          Tournament ✓
+        } @else {
+          Tournament vs {{ opponentName() }}
+        }
+      </button>
+    </div>
+
+    <p class="weekend__meta">
+      {{ rankLabel() }}
+      @if (store.weekendAdventureDone() && store.weekendTournamentDone()) {
+        · Ready to <strong>End Week</strong>
+      }
+    </p>
+  }
+</section>

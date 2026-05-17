@@ -28,6 +28,10 @@ export class BootScene extends Phaser.Scene {
         this.load.image(key, path);
       }
     }
+
+    if (!this.textures.exists('ranch-bg')) {
+      this.load.image('ranch-bg', 'assets/game/backgrounds/backgroundColorGrass.png');
+    }
   }
 
   create(): void {

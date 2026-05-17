@@ -11,6 +11,7 @@ export const routes: Routes = [
   {
     path: 'ranch',
     canActivate: [requireHatchedGuard],
+    data: { layout: 'immersive' },
     loadComponent: () => import('./features/ranch/ranch.component').then((m) => m.RanchComponent),
   },
   { path: '**', redirectTo: '' },

@@ -1,0 +1,25 @@
+<nav class="ranch-dock" aria-label="Ranch actions">
+  <button type="button" class="ranch-dock__btn" (click)="echoDance.emit()" aria-label="Echo Dance">
+    <span class="ranch-dock__icon" aria-hidden="true">💃</span>
+    <span class="ranch-dock__label">Dance</span>
+  </button>
+  <button type="button" class="ranch-dock__btn" (click)="harmonyGarden.emit()" aria-label="Harmony Garden">
+    <span class="ranch-dock__icon" aria-hidden="true">🌸</span>
+    <span class="ranch-dock__label">Garden</span>
+  </button>
+  <button
+    type="button"
+    class="ranch-dock__btn"
+    [class.ranch-dock__btn--active]="planSheetOpen()"
+    (click)="openPlan.emit()"
+    [attr.aria-expanded]="planSheetOpen()"
+    aria-label="Week plan and status"
+  >
+    <span class="ranch-dock__icon" aria-hidden="true">📋</span>
+    <span class="ranch-dock__label">Plan</span>
+  </button>
+  <button type="button" class="ranch-dock__btn" (click)="openEvolution.emit()" aria-label="Evolution preview">
+    <span class="ranch-dock__icon" aria-hidden="true">✨</span>
+    <span class="ranch-dock__label">Evolve</span>
+  </button>
+</nav>

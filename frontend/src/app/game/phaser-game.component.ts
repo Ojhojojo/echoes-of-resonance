@@ -21,6 +21,9 @@ import { GameBridgeService } from '../core/services/game-bridge.service';
 @Component({
   selector: 'app-phaser-game',
   standalone: true,
+  host: {
+    '[class.phaser-host-wrap--immersive]': 'immersive()',
+  },
   template: `
     <div class="phaser-host" #phaserHost>
       @if (!bridge.phaserReady()) {
@@ -37,6 +40,12 @@ import { GameBridgeService } from '../core/services/game-bridge.service';
       display: block;
       width: 100%;
     }
+    :host.phaser-host-wrap--immersive {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
     .phaser-host {
       position: relative;
       width: 100%;
@@ -48,6 +57,17 @@ import { GameBridgeService } from '../core/services/game-bridge.service';
       box-shadow: 0 8px 32px rgba(30, 60, 90, 0.18);
       touch-action: manipulation;
       background: var(--eor-surface-2, #e8f2ff);
+    }
+    :host.phaser-host-wrap--immersive .phaser-host {
+      position: absolute;
+      inset: 0;
+      max-width: none;
+      width: 100%;
+      height: 100%;
+      aspect-ratio: unset;
+      margin: 0;
+      border-radius: 0;
+      box-shadow: none;
     }
     .phaser-root {
       width: 100%;
@@ -92,6 +112,9 @@ import { GameBridgeService } from '../core/services/game-bridge.service';
 export class PhaserGameComponent implements AfterViewInit, OnDestroy {
   /** First scene stack: default `Boot` runs preload then starts `Ranch`; pass `Ranch` to skip boot. */
   readonly sceneKey = input<string>('Boot');
+
+  /** Full-bleed viewport host (ranch immersive layout). */
+  readonly immersive = input(false);
 
   readonly phaserHost = viewChild.required<ElementRef<HTMLDivElement>>('phaserHost');
   readonly phaserContainer = viewChild.required<ElementRef<HTMLDivElement>>('phaserContainer');

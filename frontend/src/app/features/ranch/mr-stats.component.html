@@ -1,0 +1,8 @@
+<div class="mr-stats" aria-label="Monster Rancher stats">
+  @for (key of keys; track key) {
+    <div class="mr-stats__item">
+      <span class="mr-stats__label">{{ labels[key] }}</span>
+      <span class="mr-stats__value">{{ value(key) }}</span>
+    </div>
+  }
+</div>

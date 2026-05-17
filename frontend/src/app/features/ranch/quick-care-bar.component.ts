@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, NgZone, inject } from '@angular/core';
+import { Component, NgZone, inject, input } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { GameBridgeService } from '../../core/services/game-bridge.service';
@@ -11,10 +11,14 @@ import { PlayerStore, type QuickCareKind } from '../../core/services/player-stor
 @Component({
   selector: 'app-quick-care-bar',
   standalone: true,
+  host: {
+    '[class.quick-care-host--immersive]': 'immersive()',
+  },
   templateUrl: './quick-care-bar.component.html',
   styleUrl: './quick-care-bar.component.css',
 })
 export class QuickCareBarComponent {
+  readonly immersive = input(false, { transform: (v: boolean | string) => v === '' || v === true });
   readonly store = inject(PlayerStore);
   private readonly bridge = inject(GameBridgeService);
   private readonly save = inject(EchoSaveService);

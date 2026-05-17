@@ -90,6 +90,20 @@
   font-variant-numeric: tabular-nums;
 }
 
+.app-shell--immersive {
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
+  background: #0a1218;
+}
+
+.app-shell__main--immersive {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
 .app-shell__main {
   flex: 1;
   width: 100%;

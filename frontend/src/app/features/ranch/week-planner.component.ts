@@ -38,7 +38,7 @@ export class WeekPlannerComponent {
   }
 
   requestEndWeek(): void {
-    if (!this.store.trainingPlanComplete()) {
+    if (!this.store.canEndWeek()) {
       return;
     }
     this.endWeek.emit();
